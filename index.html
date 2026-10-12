@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Eventos HTA · Métricas</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f3f2ee;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --accent: #590782;
+    --accent-ink: #ffffff;
+    --accent-wash: rgba(89,7,130,0.08);
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --funnel-1: #1c5cab;
+    --funnel-2: #2a78d6;
+    --funnel-3: #5598e7;
+    --funnel-4: #86b6ef;
+    --good: #0ca30c;
+    --good-ink: #006300;
+    --critical: #d03b3b;
+    --critical-ink: #b42727;
+    --warning: #fab219;
+    --tooltip-bg: #0b0b0b;
+    --tooltip-ink: #f0efec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #232321;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255,255,255,0.10);
+      --accent: #c9a3f0;
+      --accent-ink: #1a0a26;
+      --accent-wash: rgba(201,163,240,0.12);
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --funnel-1: #9ec5f4;
+      --funnel-2: #6da7ec;
+      --funnel-3: #3987e5;
+      --funnel-4: #256abf;
+      --good-ink: #0ca30c;
+      --critical-ink: #e66767;
+      --tooltip-bg: #f0efec;
+      --tooltip-ink: #0b0b0b;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --surface-2: #232321;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255,255,255,0.10);
+    --accent: #c9a3f0;
+    --accent-ink: #1a0a26;
+    --accent-wash: rgba(201,163,240,0.12);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --funnel-1: #9ec5f4;
+    --funnel-2: #6da7ec;
+    --funnel-3: #3987e5;
+    --funnel-4: #256abf;
+    --good-ink: #0ca30c;
+    --critical-ink: #e66767;
+    --tooltip-bg: #f0efec;
+    --tooltip-ink: #0b0b0b;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--page);
+    color: var(--ink);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+  h1 { font-size: 22px; }
+  h2 { font-size: 17px; }
+  h3 { font-size: 15px; }
+  p { margin: 0; }
+  .muted { color: var(--muted); }
+  .ink-2 { color: var(--ink-2); }
+  .small { font-size: 13px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Header */
+  .top { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+  .brand { display: flex; flex-direction: column; gap: 4px; }
+  .brand .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .seg { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .seg button {
+    appearance: none; border: 0; background: transparent; color: var(--ink-2);
+    font: inherit; font-size: 13px; padding: 6px 11px; border-radius: 7px; cursor: pointer;
+  }
+  .seg button:hover { background: var(--accent-wash); color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  .toggle { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); cursor: pointer; user-select: none;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 7px 11px; }
+  .toggle input { accent-color: var(--accent); margin: 0; }
+  .btn { appearance: none; font: inherit; font-size: 13px; cursor: pointer; border-radius: 10px; padding: 7px 12px;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--border); }
+  .btn:hover { background: var(--accent-wash); }
+  .btn:disabled { opacity: .5; cursor: progress; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--grid); margin-bottom: 20px; overflow-x: auto; }
+  .tabs button {
+    appearance: none; border: 0; background: none; font: inherit; font-weight: 600; font-size: 15px;
+    color: var(--muted); padding: 10px 14px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap;
+  }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tabs .badge { display: inline-block; margin-left: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--critical); vertical-align: middle; }
+
+  /* Cards */
+  .grid { display: grid; gap: 16px; }
+  .g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; min-width: 0; }
+  .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 14px; }
+  .section { margin-top: 28px; }
+  .section > .section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+
+  .tile .label { font-size: 13px; color: var(--ink-2); }
+  .tile .value { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin-top: 4px; }
+  .tile .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .tile.hero .value { font-size: 48px; line-height: 1.05; }
+
+  /* Funnel */
+  .funnel { display: flex; flex-direction: column; gap: 14px; }
+  .frow { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 14px; align-items: center; }
+  .frow .flabel { font-size: 14px; }
+  .frow .flabel .muted { display: block; font-size: 12px; }
+  .ftrack { position: relative; height: 24px; display: flex; align-items: center; gap: 10px; }
+  .fbar { height: 24px; border-radius: 0 4px 4px 0; min-width: 3px; flex: none; }
+  .fval { font-size: 13px; white-space: nowrap; color: var(--ink); }
+  .fval .muted { margin-left: 6px; }
+  .fdrop { font-size: 12px; color: var(--muted); padding-left: 184px; margin-top: -8px; }
+
+  /* Charts */
+  .chart { width: 100%; position: relative; }
+  .chart svg { display: block; width: 100%; overflow: visible; }
+  .chart text { fill: var(--muted); font-size: 11px; font-family: inherit; }
+  .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+  .chart .baseline { stroke: var(--axis); stroke-width: 1; }
+  .chart .hit { fill: transparent; cursor: crosshair; }
+  .chart .xhair { stroke: var(--axis); stroke-width: 1; }
+
+  /* Tables */
+  .tablewrap { overflow-x: auto; margin: 0 -4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: right; padding: 9px 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  th:first-child, td:first-child { text-align: left; }
+  tbody tr:last-child td { border-bottom: 0; }
+  .key { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; vertical-align: -1px; }
+
+  /* A/B */
+  .ab { display: flex; flex-direction: column; gap: 16px; }
+  .status { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; background: var(--surface-2); margin-bottom: 14px; }
+  .status .icon { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: #fff; }
+  .status.bad .icon { background: var(--critical); }
+  .status.ok .icon { background: var(--good); }
+  .status.wait .icon { background: var(--muted); }
+  .status strong { display: block; font-size: 14px; }
+  .status.bad strong { color: var(--critical-ink); }
+  .status.ok strong { color: var(--good-ink); }
+  .status p { font-size: 13px; color: var(--ink-2); }
+  .verdict { font-size: 15px; margin-bottom: 16px; }
+  .verdict b { font-weight: 600; }
+  .splitbar { display: flex; gap: 2px; height: 14px; margin: 6px 0 8px; }
+  .splitbar span { height: 100%; min-width: 2px; }
+  .splitbar span:first-child { border-radius: 4px 0 0 4px; }
+  .splitbar span:last-child { border-radius: 0 4px 4px 0; }
+  .splitbar span:only-child { border-radius: 4px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; }
+  .cmp { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .cmp .row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; align-items: center; font-size: 13px; }
+  .cmp .bar { height: 18px; border-radius: 0 4px 4px 0; min-width: 2px; }
+  .cmp .track { display: flex; align-items: center; gap: 8px; }
+  .sublabel { font-size: 12px; color: var(--muted); margin: 14px 0 4px; }
+  details.older { margin-top: 4px; }
+  details.older > summary { cursor: pointer; color: var(--ink-2); font-size: 14px; padding: 6px 0; }
+  details.older[open] > summary { margin-bottom: 12px; }
+  .pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); }
+  .pill.live { background: var(--accent-wash); color: var(--accent); font-weight: 600; }
+
+  /* Tooltip */
+  #tip {
+    position: fixed; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .08s;
+    background: var(--tooltip-bg); color: var(--tooltip-ink); font-size: 12px; line-height: 1.4;
+    padding: 8px 10px; border-radius: 8px; max-width: 260px; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  }
+  #tip.on { opacity: 1; }
+  #tip b { font-weight: 600; }
+
+  /* Gate & states */
+  .gate { max-width: 360px; margin: 12vh auto 0; }
+  .gate form { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .gate input { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+  .gate button { font: inherit; font-weight: 600; padding: 10px 12px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+  .err { color: var(--critical-ink); font-size: 13px; }
+  .loading { padding: 60px 0; text-align: center; color: var(--muted); }
+  .notes { margin-top: 32px; font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+
+  @media (max-width: 900px) {
+    .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .g2 { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .tile.hero .value { font-size: 36px; }
+    .tile .value { font-size: 24px; }
+    .frow { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .fdrop { padding-left: 0; margin-top: -10px; }
+    .top { align-items: stretch; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="loading">Cargando…</div></div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const KEY_STORE = "hta-dash-key";
+const PREF_STORE = "hta-dash-prefs";
+const SERIES = ["var(--series-1)", "var(--series-2)", "var(--series-3)"];
+const FUNNEL = ["var(--funnel-1)", "var(--funnel-2)", "var(--funnel-3)", "var(--funnel-4)"];
+const STEP_LABELS = [
+  ["visitors", "Visitantes", "vieron la landing"],
+  ["submitters", "Formulario", "enviaron el formulario"],
+  ["typ", "Página de gracias", "llegaron a typ-evento"],
+  ["confirmed", "Confirmación", "llegaron a confirmación"],
+];
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+let prefs = { days: 14, paid: false, event: "hollywood" };
+try { Object.assign(prefs, JSON.parse(store.get(PREF_STORE) || "{}")); } catch {}
+const savePrefs = () => store.set(PREF_STORE, JSON.stringify(prefs));
+
+let data = null, loading = false, lastError = null;
+const app = document.getElementById("app");
+const tip = document.getElementById("tip");
+
+const nf = new Intl.NumberFormat("es-AR");
+const fmt = (n) => nf.format(Math.round(n || 0));
+const pct = (n, d = 1) => (n == null || !isFinite(n)) ? "—" : (n * 100).toLocaleString("es-AR", { minimumFractionDigits: d, maximumFractionDigits: d }) + "%";
+const rate = (a, b) => (b ? a / b : null);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const dateFmt = (iso, opts) => new Date(iso.includes("T") ? iso : iso.replace(" ", "T") + "Z").toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", ...opts });
+const dayLabel = (d) => { const [y, m, dd] = d.split("-"); return `${+dd}/${+m}`; };
+
+/* ---------- Tooltip ---------- */
+function showTip(html, x, y) {
+  tip.innerHTML = html; tip.classList.add("on");
+  const r = tip.getBoundingClientRect();
+  let left = x + 14, top = y + 14;
+  if (left + r.width > innerWidth - 8) left = x - r.width - 14;
+  if (top + r.height > innerHeight - 8) top = y - r.height - 14;
+  tip.style.left = Math.max(8, left) + "px"; tip.style.top = Math.max(8, top) + "px";
+}
+const hideTip = () => tip.classList.remove("on");
+document.addEventListener("scroll", hideTip, { passive: true });
+
+/* ---------- Data ---------- */
+async function load(fresh = false) {
+  const key = store.get(KEY_STORE);
+  if (!key) return renderGate();
+  loading = true; lastError = null; render();
+  try {
+    const res = await fetch(`/api/metrics?days=${prefs.days}${fresh ? "&fresh=1" : ""}`, { headers: { "x-dashboard-key": key } });
+    if (res.status === 401) { store.del(KEY_STORE); return renderGate("Contraseña incorrecta."); }
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.detail || body.error || res.statusText);
+    data = body;
+  } catch (e) {
+    lastError = e.message;
+  } finally {
+    loading = false; render();
+  }
+}
+
+function renderGate(msg) {
+  app.innerHTML = `
+    <div class="gate card">
+      <div class="brand"><span class="eyebrow">Highway Trading Academy</span><h1>Métricas de eventos</h1></div>
+      <form id="gate">
+        <label class="small ink-2" for="pw">Contraseña del dashboard</label>
+        <input id="pw" type="password" autocomplete="current-password" required autofocus>
+        ${msg ? `<p class="err">${esc(msg)}</p>` : ""}
+        <button type="submit">Entrar</button>
+      </form>
+    </div>`;
+  document.getElementById("gate").addEventListener("submit", (e) => {
+    e.preventDefault();
+    store.set(KEY_STORE, document.getElementById("pw").value);
+    load();
+  });
+}
+
+/* ---------- Analysis helpers ---------- */
+function sampleNeeded(p1, p2) {
+  // Visitantes por variante para detectar la diferencia observada (95% confianza, 80% potencia)
+  if (p1 == null || p2 == null || p1 === p2) return null;
+  const n = Math.pow(1.96 + 0.84, 2) * (p1 * (1 - p1) + p2 * (1 - p2)) / Math.pow(p1 - p2, 2);
+  return isFinite(n) ? Math.ceil(n) : null;
+}
+
+function analyzeTest(t, seg) {
+  const variants = t.variants;
+  const control = variants.find((v) => v.isControl) || variants[0];
+  const others = variants.filter((v) => v !== control);
+  const cr = (v) => rate(v[seg].submitters, v[seg].visitors);
+  let best = null;
+  for (const v of others) {
+    const c = v.vsControl && v.vsControl[seg];
+    if (!c) continue;
+    if (!best || c.confidence > best.cmp.confidence) best = { v, cmp: c };
+  }
+  if (t.srm && t.srm.broken) {
+    const split = variants.map((v) => `${v.label} ${pct(v.share, 0)}`).join(" / ");
+    return {
+      kind: "bad",
+      title: "Reparto roto: los resultados no son válidos",
+      body: `El test está configurado para repartir parejo, pero el tráfico real es ${split}. Con esta diferencia, cualquier comparación de conversión está sesgada. Frená el test y creá uno nuevo.`,
+      verdict: null,
+    };
+  }
+  if (!best) return { kind: "wait", title: "Sin datos suficientes", body: "Todavía no hay visitantes en todas las variantes.", verdict: null };
+  const pc = cr(control), pv = cr(best.v);
+  const leader = pv > pc ? best.v : control, trailer = leader === control ? best.v : control;
+  const conf = best.cmp.confidence;
+  const relDiff = Math.abs(rate(cr(leader) - cr(trailer), cr(trailer)) ?? 0);
+  if (conf >= 0.95) {
+    return {
+      kind: "ok",
+      title: "Reparto parejo · hay ganador",
+      body: "El tráfico se reparte como está configurado y la diferencia es estadísticamente significativa.",
+      verdict: `<b>${esc(leader.label)} gana:</b> convierte ${pct(cr(leader))} contra ${pct(cr(trailer))} de ${esc(trailer.label)} (${pct(relDiff, 0)} más), con <b>${pct(conf)}</b> de confianza.`,
+    };
+  }
+  const need = sampleNeeded(pc, pv);
+  const have = Math.min(control[seg].visitors, best.v[seg].visitors);
+  const remaining = need ? Math.max(0, need - have) : null;
+  return {
+    kind: "ok",
+    title: "Reparto parejo · todavía sin ganador",
+    body: "El tráfico se reparte como está configurado. Falta volumen para que la diferencia sea concluyente.",
+    verdict: `<b>${esc(leader.label)} va adelante:</b> ${pct(cr(leader))} contra ${pct(cr(trailer))} de ${esc(trailer.label)}, con ${pct(conf)} de confianza (hace falta 95%).` +
+      (remaining ? ` Si la diferencia se mantiene, faltan unos <b>${fmt(remaining)}</b> visitantes más por variante.` : ""),
+  };
+}
+
+/* ---------- Charts ---------- */
+function niceMax(v) {
+  if (v <= 0) return 1;
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  const m = v / p;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+}
+
+function colChart(el, rows, { value, label, tipFn, color = "var(--series-1)", format = fmt }) {
+  const W = Math.max(280, el.clientWidth), H = 180, padL = 40, padR = 8, padT = 10, padB = 24;
+  const max = niceMax(Math.max(...rows.map(value), 0));
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const band = iw / Math.max(rows.length, 1);
+  const bw = Math.min(24, Math.max(4, band - 4));
+  const y = (v) => padT + ih - (v / max) * ih;
+  const ticks = [0, max / 2, max];
+  const every = Math.ceil(rows.length / Math.floor(iw / 44));
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img">`;
+  for (const t of ticks) s += `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t)}" y2="${y(t)}"/><text x="${padL - 6}" y="${y(t) + 4}" text-anchor="end">${format(t)}</text>`;
+  rows.forEach((r, i) => {
+    const v = value(r), x = padL + band * i + (band - bw) / 2, top = y(v), h = padT + ih - top;
+    if (h > 0) {
+      const rr = Math.min(4, h, bw / 2);
+      s += `<path d="M${x},${padT + ih} V${top + rr} Q${x},${top} ${x + rr},${top} H${x + bw - rr} Q${x + bw},${top} ${x + bw},${top + rr} V${padT + ih} Z" fill="${color}"/>`;
+    }
+    if (i % every === 0) s += `<text x="${padL + band * i + band / 2}" y="${H - 6}" text-anchor="middle">${label(r)}</text>`;
+    s += `<rect class="hit" data-i="${i}" x="${padL + band * i}" y="${padT}" width="${band}" height="${ih}"/>`;
+  });
+  s += `<line class="baseline" x1="${padL}" x2="${W - padR}" y1="${padT + ih}" y2="${padT + ih}"/></svg>`;
+  el.innerHTML = s;
+  el.querySelectorAll(".hit").forEach((h) => {
+    h.addEventListener("pointermove", (e) => showTip(tipFn(rows[+h.dataset.i]), e.clientX, e.clientY));
+    h.addEventListener("pointerleave", hideTip);
+  });
+}
+
+function lineChart(el, rows, { value, label, tipFn, color = "var(--series-1)", format = (v) => pct(v, 0) }) {
+  const W = Math.max(280, el.clientWidth), H = 180, padL = 40, padR = 12, padT = 10, padB = 24;
+  const vals = rows.map(value);
+  const max = niceMax(Math.max(...vals.filter((v) => v != null), 0.01));
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const step = rows.length > 1 ? iw / (rows.length - 1) : 0;
+  const x = (i) => padL + (rows.length > 1 ? step * i : iw / 2);
+  const y = (v) => padT + ih - (v / max) * ih;
+  const every = Math.ceil(rows.length / Math.floor(iw / 44));
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img">`;
+  for (const t of [0, max / 2, max]) s += `<line class="gridline" x1="${padL}" x2="${W - padR}" y1="${y(t)}" y2="${y(t)}"/><text x="${padL - 6}" y="${y(t) + 4}" text-anchor="end">${format(t)}</text>`;
+  s += `<line class="baseline" x1="${padL}" x2="${W - padR}" y1="${padT + ih}" y2="${padT + ih}"/>`;
+  let d = "", area = "", started = false, firstX = 0, lastX = 0;
+  vals.forEach((v, i) => {
+    if (v == null) { started = false; return; }
+    d += `${started ? "L" : "M"}${x(i)},${y(v)} `;
+    if (!started && !area) firstX = x(i);
+    lastX = x(i); started = true;
+  });
+  const pts = vals.map((v, i) => v == null ? null : [x(i), y(v)]).filter(Boolean);
+  if (pts.length > 1) s += `<path d="M${pts[0][0]},${padT + ih} ${pts.map((p) => `L${p[0]},${p[1]}`).join(" ")} L${pts[pts.length - 1][0]},${padT + ih} Z" fill="${color}" opacity="0.1"/>`;
+  s += `<path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  rows.forEach((r, i) => { if (i % every === 0) s += `<text x="${x(i)}" y="${H - 6}" text-anchor="middle">${label(r)}</text>`; });
+  const last = pts[pts.length - 1];
+  if (last) s += `<circle cx="${last[0]}" cy="${last[1]}" r="4" fill="${color}" stroke="var(--surface)" stroke-width="2"/>`;
+  s += `<line class="xhair" x1="0" x2="0" y1="${padT}" y2="${padT + ih}" visibility="hidden"/><circle class="xdot" r="4" fill="${color}" stroke="var(--surface)" stroke-width="2" visibility="hidden"/>`;
+  s += `<rect class="hit" x="${padL}" y="${padT}" width="${iw}" height="${ih}"/></svg>`;
+  el.innerHTML = s;
+  const svg = el.querySelector("svg"), hair = svg.querySelector(".xhair"), dot = svg.querySelector(".xdot"), hit = svg.querySelector(".hit");
+  hit.addEventListener("pointermove", (e) => {
+    const box = svg.getBoundingClientRect();
+    const px = (e.clientX - box.left) * (W / box.width);
+    const i = Math.max(0, Math.min(rows.length - 1, Math.round(rows.length > 1 ? (px - padL) / step : 0)));
+    hair.setAttribute("x1", x(i)); hair.setAttribute("x2", x(i)); hair.setAttribute("visibility", "visible");
+    if (vals[i] != null) { dot.setAttribute("cx", x(i)); dot.setAttribute("cy", y(vals[i])); dot.setAttribute("visibility", "visible"); } else dot.setAttribute("visibility", "hidden");
+    showTip(tipFn(rows[i]), e.clientX, e.clientY);
+  });
+  hit.addEventListener("pointerleave", () => { hair.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); hideTip(); });
+}
+
+/* ---------- Views ---------- */
+function tiles(f) {
+  const v = f.visitors;
+  return `<div class="grid g4">
+    <div class="card tile hero"><div class="label">Visitantes únicos</div><div class="value">${fmt(v)}</div><div class="sub">en la landing</div></div>
+    <div class="card tile"><div class="label">Enviaron el formulario</div><div class="value">${pct(rate(f.submitters, v))}</div><div class="sub">${fmt(f.submitters)} personas</div></div>
+    <div class="card tile"><div class="label">Llegaron a la página de gracias</div><div class="value">${pct(rate(f.typ, v))}</div><div class="sub">${fmt(f.typ)} personas</div></div>
+    <div class="card tile"><div class="label">Llegaron a confirmación</div><div class="value">${pct(rate(f.confirmed, v), 2)}</div><div class="sub">${fmt(f.confirmed)} personas</div></div>
+  </div>`;
+}
+
+function funnelView(f, paths) {
+  const max = f.visitors || 1;
+  const pathFor = { visitors: paths.landing, submitters: paths.landing, typ: paths.typ, confirmed: paths.confirm };
+  let rows = "";
+  STEP_LABELS.forEach(([k, name, desc], i) => {
+    const val = f[k], prev = i ? f[STEP_LABELS[i - 1][0]] : null;
+    const w = Math.max(0.4, (val / max) * 100);
+    // Si un paso supera al anterior (p. ej. visitas directas a la página de gracias), el % no tiene sentido: se omite.
+    if (i && prev && val <= prev) rows += `<div class="fdrop">↓ ${pct(rate(val, prev))} del paso anterior</div>`;
+    rows += `<div class="frow">
+      <div class="flabel">${name}<span class="muted">${esc(pathFor[k])}</span></div>
+      <div class="ftrack" data-tip="${esc(`<b>${name}</b><br>${fmt(val)} ${desc}<br>${pct(rate(val, max))} de los visitantes${i ? `<br>${pct(rate(val, prev))} del paso anterior` : ""}`)}">
+        <div class="fbar" style="width:calc(${w}% - 120px);background:${FUNNEL[i]}"></div>
+        <span class="fval num">${fmt(val)}<span class="muted">${i ? pct(rate(val, max)) : ""}</span></span>
+      </div>
+    </div>`;
+  });
+  return `<div class="funnel">${rows}</div>`;
+}
+
+function sourcesTable(sources) {
+  const label = (s) => ({ fb: "Facebook (pago)", ig: "Instagram (pago)", an: "Audience Network (pago)", "(directo)": "Directo / sin UTM" }[s] || s);
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Fuente</th><th>Visitantes</th><th>Formulario</th><th>Conv.</th><th>Gracias</th><th>Confirmación</th><th>Conv. final</th></tr></thead>
+    <tbody>${sources.map((s) => `<tr>
+      <td>${esc(label(s.source))}</td><td>${fmt(s.visitors)}</td><td>${fmt(s.submitters)}</td><td>${pct(rate(s.submitters, s.visitors))}</td>
+      <td>${fmt(s.typ)}</td><td>${fmt(s.confirmed)}</td><td>${pct(rate(s.confirmed, s.visitors), 2)}</td></tr>`).join("")}</tbody>
+  </table></div>`;
+}
+
+function testCard(t, seg, isLatest) {
+  const a = analyzeTest(t, seg);
+  const color = (i) => SERIES[i] || SERIES[SERIES.length - 1];
+  const cr = (v) => rate(v[seg].submitters, v[seg].visitors);
+  const maxCr = Math.max(...t.variants.map((v) => cr(v) || 0), 0.0001);
+  const live = (Date.now() - new Date(t.lastTs.replace(" ", "T") + "Z").getTime()) < 36 * 3600e3;
+  const legend = `<div class="legend">${t.variants.map((v, i) => `<span><i class="key" style="background:${color(i)}"></i>${esc(v.label)}${v.isControl ? " (original)" : ""}</span>`).join("")}</div>`;
+  return `<div class="card">
+    <div class="card-head">
+      <h3>${isLatest ? "Test más reciente" : "Test anterior"} <span class="pill ${live ? "live" : ""}">${live ? "Activo" : "Sin tráfico reciente"}</span></h3>
+      <span class="small muted">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · ${fmt(t.totalVisitors)} visitantes</span>
+    </div>
+    <div class="status ${a.kind}"><span class="icon" aria-hidden="true">${a.kind === "bad" ? "!" : a.kind === "ok" ? "✓" : "…"}</span>
+      <div><strong>${a.title}</strong><p>${a.body}</p></div></div>
+    ${a.verdict ? `<p class="verdict">${a.verdict}</p>` : ""}
+    <div class="grid g2">
+      <div>
+        <p class="sublabel">Reparto real del tráfico (todas las fuentes)</p>
+        <div class="splitbar">${t.variants.map((v, i) => `<span style="width:${v.share * 100}%;background:${color(i)}" data-tip="${esc(`<b>${v.label}</b><br>${pct(v.share)} del tráfico<br>${fmt(v.all.visitors)} visitantes`)}"></span>`).join("")}</div>
+        ${legend}
+        <p class="small muted" style="margin-top:6px">${t.variants.map((v) => `${esc(v.label)} ${pct(v.share)}`).join(" · ")}</p>
+      </div>
+      <div>
+        <p class="sublabel">Conversión a formulario${seg === "paid" ? " (solo tráfico pago)" : ""}</p>
+        <div class="cmp">${t.variants.map((v, i) => `<div class="row"><span>${esc(v.label)}</span>
+          <div class="track" data-tip="${esc(`<b>${v.label}</b><br>${pct(cr(v))} conversión<br>${fmt(v[seg].submitters)} de ${fmt(v[seg].visitors)} visitantes`)}">
+            <div class="bar" style="width:calc(${((cr(v) || 0) / maxCr) * 100}% - 60px);background:${color(i)}"></div><span class="num">${pct(cr(v))}</span></div></div>`).join("")}</div>
+      </div>
+    </div>
+    <p class="sublabel" style="margin-top:18px">Detalle por variante${seg === "paid" ? " · solo tráfico pago" : ""}</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Variante</th><th>Visitantes</th><th>Formulario</th><th>Conv.</th><th>Gracias</th><th>Confirmación</th><th>Conv. final</th><th>Diferencia</th><th>Confianza</th></tr></thead>
+      <tbody>${t.variants.map((v, i) => {
+        const c = v.vsControl && v.vsControl[seg];
+        return `<tr><td><i class="key" style="background:${color(i)}"></i>${esc(v.label)}</td>
+          <td>${fmt(v[seg].visitors)}</td><td>${fmt(v[seg].submitters)}</td><td>${pct(cr(v))}</td>
+          <td>${fmt(v[seg].typ)}</td><td>${fmt(v[seg].confirmed)}</td><td>${pct(rate(v[seg].confirmed, v[seg].visitors), 2)}</td>
+          <td>${c && c.lift != null ? (c.lift > 0 ? "+" : "") + pct(c.lift, 0) : "base"}</td>
+          <td>${c ? pct(c.confidence) : "—"}</td></tr>`;
+      }).join("")}</tbody>
+    </table></div>
+  </div>`;
+}
+
+function eventView(ev) {
+  const seg = prefs.paid ? "paid" : "all";
+  const f = ev.funnel[seg];
+  const daily = ev.funnel.daily;
+  const [latest, ...older] = ev.tests;
+  return `
+    ${tiles(f)}
+    <div class="section"><div class="section-head"><h2>Funnel</h2><span class="small muted">${prefs.paid ? "Solo tráfico pago (con UTM)" : "Todas las fuentes"} · últimos ${data.range.days} días</span></div>
+      <div class="card">${funnelView(f, ev.paths)}</div></div>
+    <div class="section"><div class="section-head"><h2>Por día</h2></div>
+      <div class="grid g2">
+        <div class="card"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
+        <div class="card"><div class="card-head"><h3>Conversión a formulario por día</h3><span class="small muted">días con 20+ visitantes</span></div><div class="chart" id="c-rate"></div></div>
+      </div></div>
+    <div class="section"><div class="section-head"><h2>Test A/B</h2><span class="small muted">Comparación contra la original · ${prefs.paid ? "solo tráfico pago" : "todas las fuentes"}</span></div>
+      ${latest ? `<div class="ab">${testCard(latest, seg, true)}
+        ${older.length ? `<details class="older"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary><div class="ab">${older.map((t) => testCard(t, seg, false)).join("")}</div></details>` : ""}</div>`
+        : `<div class="card"><p class="ink-2">No hay tests A/B con tráfico en esta landing en los últimos 90 días.</p></div>`}
+    </div>
+    <div class="section"><div class="section-head"><h2>Fuentes de tráfico</h2><span class="small muted">Todas las fuentes · últimos ${data.range.days} días</span></div>
+      <div class="card">${sourcesTable(ev.funnel.sources)}</div></div>`;
+}
+
+function drawCharts(ev) {
+  const seg = prefs.paid ? "paid" : "all";
+  const rows = ev.funnel.daily;
+  const cv = document.getElementById("c-visitors"), cr = document.getElementById("c-rate");
+  if (!cv || !rows.length) return;
+  const tipDay = (r) => `<b>${dayLabel(r.d)}</b><br>${fmt(r[seg].visitors)} visitantes<br>${fmt(r[seg].submitters)} formularios · ${pct(rate(r[seg].submitters, r[seg].visitors))}<br>${fmt(r[seg].confirmed)} confirmaciones`;
+  colChart(cv, rows, { value: (r) => r[seg].visitors, label: (r) => dayLabel(r.d), tipFn: tipDay });
+  // Días con menos de 20 visitantes no se grafican: un solo formulario dispara la tasa.
+  lineChart(cr, rows, { value: (r) => r[seg].visitors >= 20 ? rate(r[seg].submitters, r[seg].visitors) : null, label: (r) => dayLabel(r.d), tipFn: tipDay });
+}
+
+function bindTips(root) {
+  root.querySelectorAll("[data-tip]").forEach((el) => {
+    el.addEventListener("pointermove", (e) => showTip(el.dataset.tip, e.clientX, e.clientY));
+    el.addEventListener("pointerleave", hideTip);
+  });
+}
+
+function render() {
+  if (!store.get(KEY_STORE)) return renderGate();
+  const ev = data && (data.events.find((e) => e.key === prefs.event) || data.events[0]);
+  const daysBtns = [7, 14, 30, 90].map((d) => `<button type="button" data-days="${d}" aria-pressed="${prefs.days === d}">${d} días</button>`).join("");
+  app.innerHTML = `
+    <header class="top">
+      <div class="brand"><span class="eyebrow">Highway Trading Academy</span><h1>Funnels y tests A/B de eventos</h1>
+        <p class="small muted">${data ? `Actualizado ${dateFmt(data.generatedAt, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} (hora Argentina)${data.cached ? " · desde caché" : ""}` : ""}</p></div>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="Período">${daysBtns}</div>
+        <label class="toggle"><input type="checkbox" id="paid" ${prefs.paid ? "checked" : ""}> Solo tráfico pago</label>
+        <button class="btn" id="refresh" ${loading ? "disabled" : ""}>${loading ? "Actualizando…" : "Actualizar"}</button>
+      </div>
+    </header>
+    ${data ? `<nav class="tabs" role="tablist">${data.events.map((e) => `<button role="tab" data-ev="${e.key}" aria-selected="${ev && e.key === ev.key}">${esc(e.name)}${e.tests[0] && e.tests[0].srm && e.tests[0].srm.broken ? `<span class="badge" title="Test con reparto roto"></span>` : ""}</button>`).join("")}</nav>` : ""}
+    ${lastError ? `<div class="card" style="margin-bottom:16px"><p class="err">No se pudieron cargar los datos: ${esc(lastError)}</p></div>` : ""}
+    ${ev ? eventView(ev) : loading ? `<div class="loading">Consultando la analítica de Framer… (puede tardar unos segundos)</div>` : ""}
+    ${data ? `<div class="notes">
+      <p>Fuente: analítica de Framer del proyecto Eventos. Visitantes únicos por día; cada paso del funnel cuenta a quienes vieron la landing y después avanzaron ese mismo día.</p>
+      <p>Confianza: test z de dos proporciones sobre la conversión a formulario, variante contra original. Se considera ganador desde 95%. "Reparto roto" = el tráfico se aleja de lo configurado más de lo que explica el azar (p &lt; 0,001).</p>
+      <p>"Tráfico pago" = visitas que llegan con UTM (Facebook, Instagram). El directo suele incluir al equipo entrando a revisar la página.</p>
+      <p><a href="#" id="logout" style="color:inherit">Cerrar sesión</a></p>
+    </div>` : ""}`;
+
+  app.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => { prefs.days = +b.dataset.days; savePrefs(); load(); }));
+  app.querySelectorAll("[data-ev]").forEach((b) => b.addEventListener("click", () => { prefs.event = b.dataset.ev; savePrefs(); render(); }));
+  const paid = document.getElementById("paid");
+  if (paid) paid.addEventListener("change", () => { prefs.paid = paid.checked; savePrefs(); render(); });
+  const refresh = document.getElementById("refresh");
+  if (refresh) refresh.addEventListener("click", () => load(true));
+  const logout = document.getElementById("logout");
+  if (logout) logout.addEventListener("click", (e) => { e.preventDefault(); store.del(KEY_STORE); data = null; renderGate(); });
+  bindTips(app);
+  if (ev) drawCharts(ev);
+}
+
+let rz;
+addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { const ev = data && (data.events.find((e) => e.key === prefs.event) || data.events[0]); if (ev) drawCharts(ev); }, 150); });
+
+load();
+</script>
+</body>
+</html>

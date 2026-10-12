@@ -1,0 +1,3 @@
+{
+  "functions": { "api/metrics.js": { "maxDuration": 60 } }
+}

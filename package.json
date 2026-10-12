@@ -1,0 +1,9 @@
+{
+  "name": "hta-eventos-dashboard",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "24.x" },
+  "dependencies": {
+    "framer-api": "5.1.0"
+  }
+}
