@@ -268,7 +268,8 @@
 <div id="tip" role="tooltip"></div>
 
 <script>
-const KEY_STORE = "hta-dash-key";
+const TOKEN_STORE = "hta-dash-token";
+const EMAIL_STORE = "hta-dash-email";
 const PREF_STORE = "hta-dash-prefs";
 const SERIES = ["var(--series-1)", "var(--series-2)", "var(--series-3)"];
 const FUNNEL = ["var(--funnel-1)", "var(--funnel-2)", "var(--funnel-3)", "var(--funnel-4)"];
@@ -314,12 +315,12 @@ document.addEventListener("scroll", hideTip, { passive: true });
 
 /* ---------- Data ---------- */
 async function load(fresh = false) {
-  const key = store.get(KEY_STORE);
-  if (!key) return renderGate();
+  const token = store.get(TOKEN_STORE);
+  if (!token) return renderGate();
   loading = true; lastError = null; render();
   try {
-    const res = await fetch(`/api/metrics?days=${prefs.days}${fresh ? "&fresh=1" : ""}`, { headers: { "x-dashboard-key": key } });
-    if (res.status === 401) { store.del(KEY_STORE); return renderGate("Contraseña incorrecta."); }
+    const res = await fetch(`/api/metrics?days=${prefs.days}${fresh ? "&fresh=1" : ""}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (res.status === 401) { store.del(TOKEN_STORE); data = null; return renderGate("Tu sesión venció. Volvé a entrar."); }
     const body = await res.json();
     if (!res.ok) throw new Error(body.detail || body.error || res.statusText);
     data = body;
@@ -335,16 +336,26 @@ function renderGate(msg) {
     <div class="gate card">
       <div class="brand"><span class="eyebrow">Highway Trading Academy</span><h1>Métricas de eventos</h1></div>
       <form id="gate">
-        <label class="small ink-2" for="pw">Contraseña del dashboard</label>
-        <input id="pw" type="password" autocomplete="current-password" required autofocus>
+        <label class="small ink-2" for="em">Email</label>
+        <input id="em" type="email" autocomplete="username" required autofocus value="${esc(store.get(EMAIL_STORE) || "")}">
+        <label class="small ink-2" for="pw">Contraseña</label>
+        <input id="pw" type="password" autocomplete="current-password" required>
         ${msg ? `<p class="err">${esc(msg)}</p>` : ""}
         <button type="submit">Entrar</button>
       </form>
     </div>`;
-  document.getElementById("gate").addEventListener("submit", (e) => {
+  document.getElementById("gate").addEventListener("submit", async (e) => {
     e.preventDefault();
-    store.set(KEY_STORE, document.getElementById("pw").value);
-    load();
+    const btn = e.target.querySelector("button");
+    btn.disabled = true; btn.textContent = "Entrando…";
+    const email = document.getElementById("em").value, password = document.getElementById("pw").value;
+    try {
+      const res = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) });
+      const body = await res.json();
+      if (!res.ok) return renderGate(body.error || "No se pudo entrar.");
+      store.set(TOKEN_STORE, body.token); store.set(EMAIL_STORE, body.email);
+      load();
+    } catch { renderGate("No se pudo conectar. Probá de nuevo."); }
   });
 }
 
@@ -625,6 +636,14 @@ function buildInsights(ev) {
         (s.device === "mobile" && s.browser === "chrome" ? "Mayormente Android y el navegador interno de Facebook/Instagram: probá el formulario completo en un Android desde un anuncio." : "Probá el formulario completo en ese dispositivo."),
     });
   }
+  const bestAd = d.ads.filter((a) => a.visitors >= 50 && !a.flagged).sort((a, b) => crate(b) - crate(a))[0];
+  if (bestAd && crate(bestAd) > crate(d.clean)) {
+    out.push({
+      kind: "good", tag: "Mejor anuncio",
+      title: `El anuncio ${shortId(bestAd.ad)} convierte ${pct(crate(bestAd))}, el mejor de este evento`,
+      body: `${fmt(bestAd.visitors)} visitantes, ${fmt(bestAd.submitters)} formularios y ${fmt(bestAd.confirmed)} confirmaciones. Es candidato a recibir más presupuesto.`,
+    });
+  }
   const bounce = 1 - rate(d.clean.interacted, d.clean.visitors);
   const engagedConv = rate(d.clean.submitters, d.clean.interacted);
   out.push({
@@ -635,6 +654,24 @@ function buildInsights(ev) {
       : "Mucha gente interactúa pero no termina el formulario: revisá cantidad de campos, validaciones y velocidad en celular.",
   });
   return out;
+}
+
+function adsView(d) {
+  if (!d.ads.length) return "";
+  const best = d.ads.filter((a) => a.visitors >= 50 && !a.flagged).sort((a, b) => crate(b) - crate(a))[0];
+  const max = Math.max(...d.ads.map((a) => crate(a) || 0), 0.0001);
+  return `<div class="section"><div class="section-head"><h2>Por anuncio</h2><span class="small muted">ID del anuncio de Meta (utm_content) · anuncios con 10+ visitantes</span></div>
+    <div class="card"><div class="tablewrap"><table>
+      <thead><tr><th>Anuncio</th><th>Campaña</th><th>Visitantes</th><th>Formulario</th><th>Conv.</th><th>Gracias</th><th>Confirmación</th><th>Conv. final</th></tr></thead>
+      <tbody>${d.ads.map((a) => `<tr>
+        <td>${a.flagged ? `<span class="flag" title="Anuncio con problemas">⚠ </span>` : a === best ? `<span class="pill live" style="margin-right:6px">Mejor</span>` : ""}<span class="mono" title="Conjunto: ${esc(a.adset)}">${esc(a.ad)}</span></td>
+        <td><span class="mono muted" title="${esc(a.campaign)}">${esc(shortId(a.campaign))}</span></td>
+        <td>${fmt(a.visitors)}</td><td>${fmt(a.submitters)}</td>
+        <td><div class="rbar"><span class="num">${pct(crate(a))}</span><i class="${a.flagged ? "bad" : ""}" style="width:${Math.round(((crate(a) || 0) / max) * 60)}px"></i></div></td>
+        <td>${fmt(a.typ)}</td><td>${fmt(a.confirmed)}</td><td>${pct(rate(a.confirmed, a.visitors), 2)}</td></tr>`).join("")}</tbody>
+    </table></div>
+    <p class="small muted" style="margin-top:10px">Buscá el ID en el Administrador de anuncios para ver de qué anuncio se trata. Para ver nombres en vez de IDs, configurá los parámetros de URL de Meta con <span class="mono">utm_content={{ad.name}}</span>.</p>
+    </div></div>`;
 }
 
 function diagnosisView(ev) {
@@ -656,6 +693,7 @@ function diagnosisView(ev) {
           <td title="${esc(c.sources.map((x) => `${SOURCE[x.src] ?? x.src} ${pct(x.share, 0)}`).join(" · "))}">${esc(c.sources.filter((x) => x.share >= 0.05).map((x) => `${SOURCE[x.src] ?? x.src} ${pct(x.share, 0)}`).join(", "))}</td><td>${fmt(c.visitors)}</td><td>${pct(rate(c.visitors, d.total.visitors), 0)}</td>
           <td>${pct(rate(c.interacted, c.visitors), 0)}</td><td>${fmt(c.submitters)}</td><td>${rbar(c, cm, c.flagged)}</td></tr>`).join("")}</tbody>
       </table></div></div></div>
+    ${adsView(d)}
     <div class="section"><div class="grid g2">
       <div class="card"><div class="card-head"><h3>Por dispositivo</h3><span class="small muted">sin campañas con problemas</span></div>
         <div class="tablewrap"><table>
@@ -714,7 +752,7 @@ function bindTips(root) {
 }
 
 function render() {
-  if (!store.get(KEY_STORE)) return renderGate();
+  if (!store.get(TOKEN_STORE)) return renderGate();
   const ev = data && (data.events.find((e) => e.key === prefs.event) || data.events[0]);
   const daysBtns = [7, 14, 30, 90].map((d) => `<button type="button" data-days="${d}" aria-pressed="${prefs.days === d}">${d} días</button>`).join("");
   app.innerHTML = `
@@ -735,7 +773,7 @@ function render() {
       <p>Confianza: test z de dos proporciones sobre la conversión a formulario, variante contra original. Se considera ganador desde 95%. "Reparto roto" = el tráfico se aleja de lo configurado más de lo que explica el azar (p &lt; 0,001).</p>
       <p>"Tráfico pago" = visitas que llegan con UTM (Facebook, Instagram). El directo suele incluir al equipo entrando a revisar la página.</p>
       <p>Diagnóstico: Framer registra visitas, clics y formularios, pero no cuánto scrollea cada persona ni cuánto tiempo se queda. Para ver exactamente en qué parte abandonan hace falta un mapa de calor (por ejemplo Microsoft Clarity, gratis).</p>
-      <p><a href="#" id="logout" style="color:inherit">Cerrar sesión</a></p>
+      <p>Sesión: ${esc(store.get(EMAIL_STORE) || "")} · <a href="#" id="logout" style="color:inherit">Cerrar sesión</a></p>
     </div>` : ""}`;
 
   app.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => { prefs.days = +b.dataset.days; savePrefs(); load(); }));
@@ -745,7 +783,7 @@ function render() {
   const refresh = document.getElementById("refresh");
   if (refresh) refresh.addEventListener("click", () => load(true));
   const logout = document.getElementById("logout");
-  if (logout) logout.addEventListener("click", (e) => { e.preventDefault(); store.del(KEY_STORE); data = null; renderGate(); });
+  if (logout) logout.addEventListener("click", (e) => { e.preventDefault(); store.del(TOKEN_STORE); data = null; renderGate(); });
   bindTips(app);
   if (ev) drawCharts(ev);
 }

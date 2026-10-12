@@ -1,20 +1,12 @@
-import { timingSafeEqual } from "node:crypto";
 import { getMetrics } from "../lib/metrics.js";
+import { sessionEmail } from "../lib/auth.js";
 
 const CACHE_MS = 5 * 60 * 1000;
 const cache = new Map();
 
-function authorized(req) {
-  const expected = process.env.DASHBOARD_PASSWORD;
-  const given = req.headers["x-dashboard-key"];
-  if (!expected || typeof given !== "string") return false;
-  const a = Buffer.from(given), b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
-
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "private, no-store");
-  if (!authorized(req)) return res.status(401).json({ error: "Contraseña incorrecta" });
+  if (!sessionEmail(req)) return res.status(401).json({ error: "Sesión vencida o inválida" });
 
   const { FRAMER_API_KEY, FRAMER_PROJECT_ID } = process.env;
   if (!FRAMER_API_KEY || !FRAMER_PROJECT_ID) return res.status(500).json({ error: "Faltan FRAMER_API_KEY o FRAMER_PROJECT_ID" });
