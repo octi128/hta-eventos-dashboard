@@ -212,6 +212,26 @@
   .pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); }
   .pill.live { background: var(--accent-wash); color: var(--accent); font-weight: 600; }
 
+  /* Diagnóstico */
+  .insights { display: flex; flex-direction: column; gap: 10px; }
+  .insight { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+  .insight .icon { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; color: #fff; margin-top: 1px; }
+  .insight.critical .icon { background: var(--critical); }
+  .insight.warning .icon { background: var(--warning); color: #0b0b0b; }
+  .insight.info .icon { background: var(--series-1); }
+  .insight.good .icon { background: var(--good); }
+  .insight strong { display: block; font-size: 14px; font-weight: 600; }
+  .insight p { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+  .insight .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 2px; }
+  .insight.critical .tag { color: var(--critical-ink); }
+  .insight.warning .tag { color: var(--ink-2); }
+  .insight.info .tag, .insight.good .tag { color: var(--muted); }
+  .rbar { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .rbar i { display: block; height: 8px; border-radius: 0 3px 3px 0; background: var(--series-1); min-width: 2px; }
+  .rbar i.bad { background: var(--critical); }
+  .flag { color: var(--critical-ink); font-weight: 600; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+
   /* Tooltip */
   #tip {
     position: fixed; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .08s;
@@ -542,6 +562,115 @@ function testCard(t, seg, isLatest) {
   </div>`;
 }
 
+/* ---------- Diagnóstico ---------- */
+const DEVICE = { mobile: "Celular", desktop: "Computadora", tablet: "Tablet" };
+const BROWSER = { safari: "Safari", chrome: "Chrome", other: "otro navegador / app", edge: "Edge", firefox: "Firefox" };
+const segLabel = (s) => `${DEVICE[s.device] || s.device} · ${BROWSER[s.browser] || s.browser}`;
+const SOURCE = { fb: "Facebook", ig: "Instagram", an: "Audience Network", th: "Threads", msg: "Messenger", "": "sin UTM" };
+const shortId = (id) => id ? "…" + id.slice(-6) : "(sin campaña)";
+const crate = (g) => rate(g.submitters, g.visitors);
+
+function linkKind(href) {
+  if (/terminos|politica|privacidad/i.test(href)) return "legal";
+  if (href === "/" || /highwaytradingacademy\.com\/?$/.test(href)) return "home";
+  if (href.startsWith("/")) return "other-page";
+  return "external";
+}
+
+function buildInsights(ev) {
+  const d = ev.diagnosis, out = [];
+  const flagged = d.campaigns.filter((c) => c.flagged);
+  for (const c of flagged) {
+    const share = rate(c.visitors, d.total.visitors);
+    const an = c.sources.find((x) => x.src === "an" && x.share >= 0.2);
+    out.push({
+      kind: "critical", tag: "Cuello de botella principal",
+      title: `La campaña ${shortId(c.campaign)} trae el ${pct(share, 0)} del tráfico y casi no genera formularios`,
+      body: `${fmt(c.visitors)} visitantes y ${fmt(c.submitters)} formularios (${pct(crate(c))}), contra ${pct(c.restRate)} del resto del tráfico. Solo ${pct(rate(c.interacted, c.visitors))} toca algo en la página: entran y se van. ` +
+        (an ? `El ${pct(an.share, 0)} viene de Audience Network (apps y sitios de terceros de Meta), que suele traer clics accidentales: excluí esa ubicación. ` : "") +
+        "Revisá en Ads Manager el objetivo de optimización (tiene que ser leads o conversiones, no clics o visitas) y las ubicaciones.",
+    });
+  }
+  if (flagged.length) {
+    out.push({
+      kind: "info", tag: "Tasa de formulario real",
+      title: `Sin esa campaña, la landing convierte ${pct(crate(d.clean))} (no ${pct(crate(d.total))})`,
+      body: `De ${fmt(d.clean.visitors)} visitantes del resto del tráfico, ${fmt(d.clean.submitters)} enviaron el formulario. La página funciona; el número bajo viene de tráfico que no está interesado.`,
+    });
+  }
+  for (const o of d.outbound) {
+    const k = linkKind(o.href);
+    if (k === "other-page" && o.visitors >= 5) {
+      out.push({
+        kind: "critical", tag: "Enlace roto",
+        title: `Un enlace de esta landing lleva a ${o.href}`,
+        body: `${fmt(o.visitors)} personas hicieron clic y se fueron a otra página. Revisá los botones de la landing: probablemente quedó un link copiado de otro evento.`,
+      });
+    }
+  }
+  const legal = d.outbound.filter((o) => linkKind(o.href) === "legal").reduce((s, o) => s + o.visitors, 0);
+  if (legal >= 10) {
+    out.push({
+      kind: "warning", tag: "Fuga",
+      title: `${fmt(legal)} personas abrieron términos o privacidad`,
+      body: "Esos enlaces sacan a la persona de la landing en la misma pestaña. Conviene que se abran en una pestaña nueva para no perderla en medio del formulario.",
+    });
+  }
+  const best = d.segments.filter((s) => s.visitors >= 100).sort((a, b) => crate(b) - crate(a))[0];
+  for (const s of d.segments.filter((x) => x.flagged)) {
+    out.push({
+      kind: "warning", tag: "Dispositivo",
+      title: `En ${segLabel(s)} se convierte ${pct(crate(s))}, contra ${pct(crate(best))} en ${segLabel(best)}`,
+      body: `${fmt(s.visitors)} visitantes y ${fmt(s.submitters)} formularios (sin contar campañas con problemas). ` +
+        (s.device === "mobile" && s.browser === "chrome" ? "Mayormente Android y el navegador interno de Facebook/Instagram: probá el formulario completo en un Android desde un anuncio." : "Probá el formulario completo en ese dispositivo."),
+    });
+  }
+  const bounce = 1 - rate(d.clean.interacted, d.clean.visitors);
+  const engagedConv = rate(d.clean.submitters, d.clean.interacted);
+  out.push({
+    kind: engagedConv >= 0.5 ? "good" : "warning", tag: "Dónde se pierde la gente",
+    title: `El ${pct(bounce, 0)} se va sin tocar nada; de los que interactúan, el ${pct(engagedConv, 0)} completa el formulario`,
+    body: engagedConv >= 0.5
+      ? "El formulario no es el problema: quien empieza, termina. La pérdida está arriba de todo (primer pantallazo, promesa, video). Ahí conviene testear."
+      : "Mucha gente interactúa pero no termina el formulario: revisá cantidad de campos, validaciones y velocidad en celular.",
+  });
+  return out;
+}
+
+function diagnosisView(ev) {
+  const d = ev.diagnosis;
+  const ins = buildInsights(ev);
+  const icon = { critical: "!", warning: "!", info: "i", good: "✓" };
+  const maxRate = (list) => Math.max(...list.map((x) => crate(x) || 0), 0.0001);
+  const rbar = (g, max, bad) => `<div class="rbar"><span class="num">${pct(crate(g))}</span><i class="${bad ? "bad" : ""}" style="width:${Math.round(((crate(g) || 0) / max) * 60)}px"></i></div>`;
+  const cm = maxRate(d.campaigns), sm = maxRate(d.segments);
+  return `
+    <div class="section"><div class="section-head"><h2>Diagnóstico</h2><span class="small muted">Todas las fuentes · últimos ${data.range.days} días</span></div>
+      <div class="insights">${ins.map((i) => `<div class="insight ${i.kind}"><span class="icon" aria-hidden="true">${icon[i.kind]}</span><div><span class="tag">${esc(i.tag)}</span><strong>${esc(i.title)}</strong><p>${esc(i.body)}</p></div></div>`).join("")}</div>
+    </div>
+    <div class="section"><div class="section-head"><h2>Por campaña</h2><span class="small muted">ID de campaña de Meta (utm_campaign)</span></div>
+      <div class="card"><div class="tablewrap"><table>
+        <thead><tr><th>Campaña</th><th>Fuente</th><th>Visitantes</th><th>% del tráfico</th><th>Interactúan</th><th>Formulario</th><th>Conversión</th></tr></thead>
+        <tbody>${d.campaigns.map((c) => `<tr>
+          <td>${c.flagged ? `<span class="flag" title="Campaña con problemas">⚠ </span>` : ""}<span class="mono" title="${esc(c.campaign)}">${esc(c.campaign || "(sin campaña)")}</span></td>
+          <td title="${esc(c.sources.map((x) => `${SOURCE[x.src] ?? x.src} ${pct(x.share, 0)}`).join(" · "))}">${esc(c.sources.filter((x) => x.share >= 0.05).map((x) => `${SOURCE[x.src] ?? x.src} ${pct(x.share, 0)}`).join(", "))}</td><td>${fmt(c.visitors)}</td><td>${pct(rate(c.visitors, d.total.visitors), 0)}</td>
+          <td>${pct(rate(c.interacted, c.visitors), 0)}</td><td>${fmt(c.submitters)}</td><td>${rbar(c, cm, c.flagged)}</td></tr>`).join("")}</tbody>
+      </table></div></div></div>
+    <div class="section"><div class="grid g2">
+      <div class="card"><div class="card-head"><h3>Por dispositivo</h3><span class="small muted">sin campañas con problemas</span></div>
+        <div class="tablewrap"><table>
+          <thead><tr><th>Dispositivo</th><th>Visitantes</th><th>Formulario</th><th>Conversión</th></tr></thead>
+          <tbody>${d.segments.map((s) => `<tr><td>${s.flagged ? `<span class="flag">⚠ </span>` : ""}${esc(segLabel(s))}</td><td>${fmt(s.visitors)}</td><td>${fmt(s.submitters)}</td><td>${rbar(s, sm, s.flagged)}</td></tr>`).join("")}</tbody>
+        </table></div></div>
+      <div class="card"><div class="card-head"><h3>Enlaces que sacan de la página</h3><span class="small muted">personas únicas</span></div>
+        ${d.outbound.length ? `<div class="tablewrap"><table>
+          <thead><tr><th>Destino</th><th>Personas</th></tr></thead>
+          <tbody>${d.outbound.map((o) => `<tr><td>${linkKind(o.href) === "other-page" ? `<span class="flag">⚠ </span>` : ""}<span class="mono">${esc(o.href.replace(/^https?:\/\//, "").slice(0, 48))}</span></td><td>${fmt(o.visitors)}</td></tr>`).join("")}</tbody>
+        </table></div>` : `<p class="small muted">Nadie salió por enlaces en este período.</p>`}
+      </div>
+    </div></div>`;
+}
+
 function eventView(ev) {
   const seg = prefs.paid ? "paid" : "all";
   const f = ev.funnel[seg];
@@ -549,6 +678,7 @@ function eventView(ev) {
   const [latest, ...older] = ev.tests;
   return `
     ${tiles(f)}
+    ${ev.diagnosis ? diagnosisView(ev) : ""}
     <div class="section"><div class="section-head"><h2>Funnel</h2><span class="small muted">${prefs.paid ? "Solo tráfico pago (con UTM)" : "Todas las fuentes"} · últimos ${data.range.days} días</span></div>
       <div class="card">${funnelView(f, ev.paths)}</div></div>
     <div class="section"><div class="section-head"><h2>Por día</h2></div>
@@ -604,6 +734,7 @@ function render() {
       <p>Fuente: analítica de Framer del proyecto Eventos. Visitantes únicos por día; cada paso del funnel cuenta a quienes vieron la landing y después avanzaron ese mismo día.</p>
       <p>Confianza: test z de dos proporciones sobre la conversión a formulario, variante contra original. Se considera ganador desde 95%. "Reparto roto" = el tráfico se aleja de lo configurado más de lo que explica el azar (p &lt; 0,001).</p>
       <p>"Tráfico pago" = visitas que llegan con UTM (Facebook, Instagram). El directo suele incluir al equipo entrando a revisar la página.</p>
+      <p>Diagnóstico: Framer registra visitas, clics y formularios, pero no cuánto scrollea cada persona ni cuánto tiempo se queda. Para ver exactamente en qué parte abandonan hace falta un mapa de calor (por ejemplo Microsoft Clarity, gratis).</p>
       <p><a href="#" id="logout" style="color:inherit">Cerrar sesión</a></p>
     </div>` : ""}`;
 
