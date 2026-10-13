@@ -1,0 +1,30 @@
+{
+  "capturedAt": "2026-10-13T04:33:47.004Z",
+  "pages": {
+    "TWBcZNpC0": {
+      "event": "hollywood",
+      "path": "/hw/hollywood",
+      "breakpoint": "Phone"
+    },
+    "xC4TrKpso": {
+      "event": "hollywood",
+      "path": "/hw/hollywood",
+      "breakpoint": "Phone"
+    },
+    "EydMCY1m5": {
+      "event": "houston",
+      "path": "/houston-new/houston",
+      "breakpoint": "Phone"
+    },
+    "zbodSNUpy": {
+      "event": "houston",
+      "path": "/houston-new/houston",
+      "breakpoint": "Phone"
+    },
+    "yCW05L2nX": {
+      "event": "orlando",
+      "path": "/orlando/orlando",
+      "breakpoint": "Phone"
+    }
+  }
+}

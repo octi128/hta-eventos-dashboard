@@ -8,6 +8,14 @@ Funnels y tests A/B de las landings de eventos (Hollywood, Houston, Orlando), co
 - `lib/auth.js`: hash de contraseñas (scrypt) y firma de sesiones.
 - `lib/metrics.js`: consultas a Framer y cálculos (funnel, reparto, confianza). Para sumar un evento, agregalo en `EVENTS`.
 
+## Capturas de cada versión (tests A/B)
+
+`variants/` tiene una captura del primer pantallazo en celular de cada versión de cada landing; el dashboard la muestra en "Cuál es cuál". Si cambia el diseño de una versión o se crea una variante nueva:
+
+1. Agregá la variante (id de página, nombre y qué cambia) en `variants` dentro de `EVENTS` en `lib/metrics.js`.
+2. Regenerá las capturas: `FRAMER_API_KEY=... node scripts/capture-variants.js`
+3. Subí los cambios a `main`.
+
 ## Variables de entorno (Vercel)
 
 | Variable | Qué es |

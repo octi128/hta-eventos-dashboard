@@ -232,6 +232,30 @@
   .flag { color: var(--critical-ink); font-weight: 600; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
 
+  /* Versiones del test */
+  .versions { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 4px 0 18px; }
+  .version { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); display: flex; flex-direction: column; }
+  .version.lead { border-color: var(--good); box-shadow: 0 0 0 1px var(--good) inset; }
+  .version .shot { display: block; aspect-ratio: 390 / 520; background: var(--surface-2); overflow: hidden; border-bottom: 1px solid var(--border); }
+  .version .shot img { width: 100%; display: block; }
+  .version .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .version .name { display: flex; align-items: center; gap: 8px; font-weight: 600; flex-wrap: wrap; }
+  .version .desc { font-size: 13px; color: var(--ink-2); }
+  .version .warn { font-size: 12px; color: var(--critical-ink); font-weight: 600; }
+  .version .nums { display: flex; gap: 14px; font-size: 13px; margin-top: 2px; flex-wrap: wrap; }
+  .version .nums b { display: block; font-size: 18px; font-weight: 600; }
+  .version .nums span { color: var(--muted); font-size: 12px; }
+  .version .links { display: flex; gap: 12px; font-size: 13px; margin-top: auto; padding-top: 6px; flex-wrap: wrap; }
+  .version .links a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .version .links a:hover { text-decoration: underline; }
+  .badge-s { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; letter-spacing: .02em; }
+  .badge-s.win { background: var(--good); color: #fff; }
+  .badge-s.lead { background: var(--accent-wash); color: var(--good-ink); border: 1px solid var(--good); }
+  .badge-s.bad { background: var(--surface-2); color: var(--critical-ink); }
+  .badge-s.mute { background: var(--surface-2); color: var(--muted); }
+  .summary-row { cursor: pointer; }
+  .summary-row:hover td { background: var(--accent-wash); }
+
   /* Tooltip */
   #tip {
     position: fixed; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .08s;
@@ -381,20 +405,20 @@ function analyzeTest(t, seg) {
   if (t.srm && t.srm.broken) {
     const split = variants.map((v) => `${v.label} ${pct(v.share, 0)}`).join(" / ");
     return {
-      kind: "bad",
+      kind: "bad", status: "broken",
       title: "Reparto roto: los resultados no son válidos",
-      body: `El test está configurado para repartir parejo, pero el tráfico real es ${split}. Con esta diferencia, cualquier comparación de conversión está sesgada. Frená el test y creá uno nuevo.`,
+      body: `El test está configurado para repartir parejo, pero el tráfico real es ${split}. Con esta diferencia, cualquier comparación de conversión está sesgada. Si recrear el test no lo corrige, el problema es de Framer: reportalo a su soporte o hacé el test desde Meta, con cada versión en su propia URL.`,
       verdict: null,
     };
   }
-  if (!best) return { kind: "wait", title: "Sin datos suficientes", body: "Todavía no hay visitantes en todas las variantes.", verdict: null };
+  if (!best) return { kind: "wait", status: "nodata", title: "Sin datos suficientes", body: "Todavía no hay visitantes en todas las variantes.", verdict: null };
   const pc = cr(control), pv = cr(best.v);
   const leader = pv > pc ? best.v : control, trailer = leader === control ? best.v : control;
   const conf = best.cmp.confidence;
   const relDiff = Math.abs(rate(cr(leader) - cr(trailer), cr(trailer)) ?? 0);
   if (conf >= 0.95) {
     return {
-      kind: "ok",
+      kind: "ok", status: "winner", leader, trailer, conf,
       title: "Reparto parejo · hay ganador",
       body: "El tráfico se reparte como está configurado y la diferencia es estadísticamente significativa.",
       verdict: `<b>${esc(leader.label)} gana:</b> convierte ${pct(cr(leader))} contra ${pct(cr(trailer))} de ${esc(trailer.label)} (${pct(relDiff, 0)} más), con <b>${pct(conf)}</b> de confianza.`,
@@ -404,7 +428,7 @@ function analyzeTest(t, seg) {
   const have = Math.min(control[seg].visitors, best.v[seg].visitors);
   const remaining = need ? Math.max(0, need - have) : null;
   return {
-    kind: "ok",
+    kind: "ok", status: "leading", leader, trailer, conf,
     title: "Reparto parejo · todavía sin ganador",
     body: "El tráfico se reparte como está configurado. Falta volumen para que la diferencia sea concluyente.",
     verdict: `<b>${esc(leader.label)} va adelante:</b> ${pct(cr(leader))} contra ${pct(cr(trailer))} de ${esc(trailer.label)}, con ${pct(conf)} de confianza (hace falta 95%).` +
@@ -529,7 +553,64 @@ function sourcesTable(sources) {
   </table></div>`;
 }
 
-function testCard(t, seg, isLatest) {
+const shotUrl = (pageId) => `/variants/${pageId}.jpg`;
+
+function versionStatus(a, v) {
+  if (a.status === "broken") return `<span class="badge-s bad">Sin resultado válido</span>`;
+  if (a.status === "winner") return a.leader === v ? `<span class="badge-s win">✓ Ganadora</span>` : `<span class="badge-s mute">Pierde</span>`;
+  if (a.status === "leading") return a.leader === v ? `<span class="badge-s lead">Va adelante</span>` : `<span class="badge-s mute">Va atrás</span>`;
+  return `<span class="badge-s mute">Sin datos</span>`;
+}
+
+function versionsGallery(ev, t, seg, a) {
+  const info = Object.fromEntries((ev.versions || []).map((v) => [v.pageId, v]));
+  const color = (i) => SERIES[i] || SERIES[SERIES.length - 1];
+  return `<p class="sublabel">Cuál es cuál · primer pantallazo en celular</p>
+    <div class="versions">${t.variants.map((v, i) => {
+      const meta = info[v.pageId] || {};
+      const lead = (a.status === "winner" || a.status === "leading") && a.leader === v;
+      return `<div class="version ${lead ? "lead" : ""}">
+        <a class="shot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener" title="Ver captura completa"><img src="${shotUrl(v.pageId)}" alt="${esc(v.label)} en celular" onerror="this.parentNode.style.display='none'"></a>
+        <div class="body">
+          <div class="name"><i class="key" style="background:${color(i)};margin-right:0"></i>${esc(v.label)}${v.isControl ? ` <span class="muted small" style="font-weight:400">(original)</span>` : ""} ${versionStatus(a, v)}</div>
+          ${meta.desc ? `<p class="desc">${esc(meta.desc)}</p>` : ""}
+          ${meta.warning ? `<p class="warn">⚠ ${esc(meta.warning)}</p>` : ""}
+          <div class="nums">
+            <div><b>${pct(rate(v[seg].submitters, v[seg].visitors))}</b><span>formulario</span></div>
+            <div><b>${fmt(v[seg].visitors)}</b><span>visitantes</span></div>
+            <div><b>${fmt(v[seg].confirmed)}</b><span>confirmaciones</span></div>
+          </div>
+          <div class="links">
+            <a href="${ev.editorUrl}?node=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Abrir en Framer ↗</a>
+            <a href="${ev.publicUrl}" target="_blank" rel="noopener" title="La página publicada muestra una versión al azar">Ver publicada ↗</a>
+          </div>
+        </div>
+      </div>`;
+    }).join("")}</div>`;
+}
+
+function abSummary() {
+  const rows = data.events.map((ev) => {
+    const t = ev.tests[0];
+    if (!t) return `<tr class="summary-row" data-goto="${ev.key}"><td>${esc(ev.name)}</td><td colspan="3" class="muted" style="text-align:left">Sin test A/B activo</td><td><span class="badge-s mute">—</span></td></tr>`;
+    const a = analyzeTest(t, "all");
+    const ctrl = t.variants.find((v) => v.isControl) || t.variants[0];
+    const other = t.variants.find((v) => v !== ctrl);
+    const status = a.status === "broken" ? `<span class="badge-s bad">Reparto roto</span>`
+      : a.status === "winner" ? `<span class="badge-s win">Gana ${esc(a.leader.label)}</span>`
+      : a.status === "leading" ? `<span class="badge-s lead">${esc(a.leader.label)} adelante · ${pct(a.conf, 0)}</span>`
+      : `<span class="badge-s mute">Sin datos</span>`;
+    return `<tr class="summary-row" data-goto="${ev.key}"><td>${esc(ev.name)}</td>
+      <td>${fmt(t.totalVisitors)}</td>
+      <td>${esc(ctrl.label)} ${pct(rate(ctrl.all.submitters, ctrl.all.visitors))}</td>
+      <td>${other ? `${esc(other.label)} ${pct(rate(other.all.submitters, other.all.visitors))}` : "—"}</td>
+      <td>${status}</td></tr>`;
+  }).join("");
+  return `<div class="card" style="margin-bottom:20px"><div class="card-head"><h3>¿Qué versión funciona mejor?</h3><span class="small muted">Test A/B más reciente de cada evento · conversión a formulario</span></div>
+    <div class="tablewrap"><table><thead><tr><th>Evento</th><th>Visitantes del test</th><th>Original</th><th>Variante</th><th>Resultado</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
+function testCard(t, seg, isLatest, ev) {
   const a = analyzeTest(t, seg);
   const color = (i) => SERIES[i] || SERIES[SERIES.length - 1];
   const cr = (v) => rate(v[seg].submitters, v[seg].visitors);
@@ -544,6 +625,7 @@ function testCard(t, seg, isLatest) {
     <div class="status ${a.kind}"><span class="icon" aria-hidden="true">${a.kind === "bad" ? "!" : a.kind === "ok" ? "✓" : "…"}</span>
       <div><strong>${a.title}</strong><p>${a.body}</p></div></div>
     ${a.verdict ? `<p class="verdict">${a.verdict}</p>` : ""}
+    ${isLatest && ev ? versionsGallery(ev, t, seg, a) : ""}
     <div class="grid g2">
       <div>
         <p class="sublabel">Reparto real del tráfico (todas las fuentes)</p>
@@ -590,6 +672,9 @@ function linkKind(href) {
 
 function buildInsights(ev) {
   const d = ev.diagnosis, out = [];
+  for (const v of (ev.versions || []).filter((x) => x.warning)) {
+    out.push({ kind: "critical", tag: "Error en la landing", title: `${v.label}: ${v.warning}`, body: "Lo ve cualquier persona a la que le toque esa versión del test. Corregilo en Framer antes de sacar conclusiones del test." });
+  }
   const flagged = d.campaigns.filter((c) => c.flagged);
   for (const c of flagged) {
     const share = rate(c.visitors, d.total.visitors);
@@ -725,9 +810,12 @@ function eventView(ev) {
         <div class="card"><div class="card-head"><h3>Conversión a formulario por día</h3><span class="small muted">días con 20+ visitantes</span></div><div class="chart" id="c-rate"></div></div>
       </div></div>
     <div class="section"><div class="section-head"><h2>Test A/B</h2><span class="small muted">Comparación contra la original · ${prefs.paid ? "solo tráfico pago" : "todas las fuentes"}</span></div>
-      ${latest ? `<div class="ab">${testCard(latest, seg, true)}
-        ${older.length ? `<details class="older"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary><div class="ab">${older.map((t) => testCard(t, seg, false)).join("")}</div></details>` : ""}</div>`
-        : `<div class="card"><p class="ink-2">No hay tests A/B con tráfico en esta landing en los últimos 90 días.</p></div>`}
+      ${latest ? `<div class="ab">${testCard(latest, seg, true, ev)}
+        ${older.length ? `<details class="older"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary><div class="ab">${older.map((t) => testCard(t, seg, false, ev)).join("")}</div></details>` : ""}</div>`
+        : `<div class="card"><p class="ink-2" style="margin-bottom:12px">No hay tests A/B con tráfico en esta landing en los últimos 90 días. Esta es la versión que está publicada:</p>
+          <div class="versions" style="max-width:280px">${(ev.versions || []).map((v) => `<div class="version"><a class="shot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener"><img src="${shotUrl(v.pageId)}" alt="${esc(v.label)}" onerror="this.parentNode.style.display='none'"></a>
+            <div class="body"><div class="name">${esc(v.label)}</div><p class="desc">${esc(v.desc || "")}</p>
+            <div class="links"><a href="${ev.editorUrl}?node=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Abrir en Framer ↗</a><a href="${ev.publicUrl}" target="_blank" rel="noopener">Ver publicada ↗</a></div></div></div>`).join("")}</div></div>`}
     </div>
     <div class="section"><div class="section-head"><h2>Fuentes de tráfico</h2><span class="small muted">Todas las fuentes · últimos ${data.range.days} días</span></div>
       <div class="card">${sourcesTable(ev.funnel.sources)}</div></div>`;
@@ -765,6 +853,7 @@ function render() {
         <button class="btn" id="refresh" ${loading ? "disabled" : ""}>${loading ? "Actualizando…" : "Actualizar"}</button>
       </div>
     </header>
+    ${data ? abSummary() : ""}
     ${data ? `<nav class="tabs" role="tablist">${data.events.map((e) => `<button role="tab" data-ev="${e.key}" aria-selected="${ev && e.key === ev.key}">${esc(e.name)}${e.tests[0] && e.tests[0].srm && e.tests[0].srm.broken ? `<span class="badge" title="Test con reparto roto"></span>` : ""}</button>`).join("")}</nav>` : ""}
     ${lastError ? `<div class="card" style="margin-bottom:16px"><p class="err">No se pudieron cargar los datos: ${esc(lastError)}</p></div>` : ""}
     ${ev ? eventView(ev) : loading ? `<div class="loading">Consultando la analítica de Framer… (puede tardar unos segundos)</div>` : ""}
@@ -778,6 +867,7 @@ function render() {
 
   app.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => { prefs.days = +b.dataset.days; savePrefs(); load(); }));
   app.querySelectorAll("[data-ev]").forEach((b) => b.addEventListener("click", () => { prefs.event = b.dataset.ev; savePrefs(); render(); }));
+  app.querySelectorAll("[data-goto]").forEach((r) => r.addEventListener("click", () => { prefs.event = r.dataset.goto; savePrefs(); render(); const ab = [...document.querySelectorAll("h2")].find((h) => h.textContent === "Test A/B"); if (ab) ab.scrollIntoView({ behavior: "smooth" }); }));
   const paid = document.getElementById("paid");
   if (paid) paid.addEventListener("change", () => { prefs.paid = paid.checked; savePrefs(); render(); });
   const refresh = document.getElementById("refresh");
