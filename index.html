@@ -307,6 +307,190 @@
     .fx-name { font-size: 12px; }
     .top { align-items: stretch; }
   }
+
+  /* ===== Rediseño de presentación (v2): textos más grandes, jerarquía clara y gráficos ===== */
+  :root { --tone-good: var(--good); --tone-warn: var(--warning); --tone-bad: var(--critical); --tone-info: var(--accent); }
+  body { font-size: 15px; }
+  .wrap { max-width: 1180px; padding: 32px 20px 80px; }
+  .top h1 { font-size: 34px; line-height: 1.1; letter-spacing: -0.02em; }
+  .eyebrow { font-size: 13px !important; }
+  .small { font-size: 14px; }
+  .card { padding: 24px; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.12); }
+  .card.big { padding: 26px; }
+  .card h3 { font-size: 17px; }
+  .card-sub { margin-top: 22px; }
+  .card-sub h3 { font-size: 16px; margin-bottom: 4px; }
+  .block { margin-top: 22px; }
+  .block-h { font-size: 17px; margin: 26px 0 12px; }
+  .sublabel { font-size: 13px; color: var(--ink-2); margin: 18px 0 10px; font-weight: 600; }
+  .note { font-size: 13px; color: var(--ink-2); margin-top: 14px; }
+
+  /* Selector de evento: tres tarjetas grandes */
+  .ev-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 26px; }
+  .ev-card { appearance: none; text-align: left; font: inherit; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 4px;
+    padding: 20px; border-radius: 16px; background: var(--surface); border: 1.5px solid var(--border); transition: border-color .15s, box-shadow .15s; }
+  .ev-card:hover { border-color: var(--accent); }
+  .ev-card.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .ev-name { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .ev-big { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-top: 4px; }
+  .ev-lbl { font-size: 14px; color: var(--ink-2); }
+  .ev-row { font-size: 14px; margin-top: 6px; color: var(--ink); }
+  .ev-card .chip { align-self: flex-start; margin-top: 10px; }
+
+  /* Chips */
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+  .chip.good { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good-ink); }
+  .chip.warn { background: color-mix(in srgb, var(--warning) 26%, transparent); color: var(--ink); }
+  .chip.bad { background: color-mix(in srgb, var(--critical) 16%, transparent); color: var(--critical-ink); }
+  .chip.info { background: var(--accent-wash); color: var(--accent); }
+  .chip.mute { background: var(--surface-2); color: var(--muted); }
+
+  /* Resumen */
+  .summary { border-left: 5px solid var(--accent); margin-bottom: 18px; }
+  .summary h3 { margin-bottom: 10px; }
+  .plain { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .plain li { font-size: 16px; line-height: 1.5; padding-left: 26px; position: relative; }
+  .plain li::before { content: "→"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .plain b { color: var(--ink); }
+
+  /* KPIs */
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 30px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; border-top: 5px solid var(--axis);
+    display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .kpi.good { border-top-color: var(--good); }
+  .kpi.warn { border-top-color: var(--warning); }
+  .kpi.bad { border-top-color: var(--critical); }
+  .kpi.info { border-top-color: var(--accent); }
+  .kpi-l { font-size: 14px; color: var(--ink-2); font-weight: 600; }
+  .kpi-v { font-size: 38px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .kpi-s { font-size: 13px; color: var(--ink-2); }
+
+  /* Secciones numeradas */
+  .sec { margin-top: 40px; }
+  .sec-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+  .sec-num { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 700; font-size: 16px; }
+  .sec-head h2 { font-size: 24px; line-height: 1.2; letter-spacing: -0.01em; }
+  .sec-head p { font-size: 15px; color: var(--ink-2); margin-top: 4px; max-width: 760px; }
+
+  /* Barras horizontales */
+  .hbars { display: flex; flex-direction: column; gap: 14px; }
+  .hbar { display: grid; grid-template-columns: minmax(0, 260px) minmax(0, 1fr) 70px; gap: 14px; align-items: center; }
+  .hbar-l { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; font-size: 14px; min-width: 0; overflow: hidden; }
+  .hbar-l > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .hbar-l .chip { flex: none; }
+  .hbar-t { height: 22px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
+  .hbar-t i { display: block; height: 100%; border-radius: 6px; min-width: 4px; }
+  .hbar-t i.good { background: var(--good); }
+  .hbar-t i.warn { background: var(--warning); }
+  .hbar-t i.bad { background: var(--critical); }
+  .hbar-t i.info { background: var(--accent); }
+  .hbar-v { font-size: 16px; font-weight: 700; text-align: right; }
+  .legend2 { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--ink-2); margin-top: 10px; }
+  .legend2 i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .legend2 i.good { background: var(--good); } .legend2 i.warn { background: var(--warning); }
+  .legend2 i.bad { background: var(--critical); } .legend2 i.pending { background: var(--axis); }
+
+  /* Columnas verticales (emails) */
+  .vbars { display: flex; align-items: flex-end; gap: 10px; height: 230px; padding-top: 10px; }
+  .vb { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .vb-v { font-size: 14px; font-weight: 700; height: 18px; }
+  .vb-t { flex: 1; width: 100%; max-width: 64px; background: var(--surface-2); border-radius: 8px 8px 4px 4px; display: flex; align-items: flex-end; overflow: hidden; }
+  .vb-t i { display: block; width: 100%; border-radius: 8px 8px 4px 4px; }
+  .vb-t i.good { background: var(--good); } .vb-t i.warn { background: var(--warning); }
+  .vb-t i.bad { background: var(--critical); } .vb-t i.pending { background: var(--axis); }
+  .vb-l { font-size: 13px; color: var(--ink-2); font-weight: 600; }
+
+  /* Próximos envíos */
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .tl { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px; font-size: 14px; padding: 10px 14px; background: var(--surface-2); border-radius: 10px; }
+  .tl-d { color: var(--ink-2); }
+  .tl-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Ideas / diagnósticos */
+  .ideas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .idea { display: flex; gap: 14px; align-items: flex-start; padding: 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--axis); }
+  .idea.critical { border-left-color: var(--critical); }
+  .idea.warning { border-left-color: var(--warning); }
+  .idea.good { border-left-color: var(--good); }
+  .idea.info { border-left-color: var(--accent); }
+  .idea-ic { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 15px; color: #fff; background: var(--accent); }
+  .idea.critical .idea-ic { background: var(--critical); }
+  .idea.warning .idea-ic { background: var(--warning); color: #0b0b0b; }
+  .idea.good .idea-ic { background: var(--good); }
+  .idea strong { display: block; font-size: 15px; font-weight: 600; margin-top: 2px; }
+  .idea p { font-size: 14px; color: var(--ink-2); margin-top: 4px; line-height: 1.5; }
+  .idea .tag { font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-2); }
+
+  /* Anuncios / bloque de texto */
+  .ads-strip { display: none; }
+  .mono { font-size: 13px; }
+
+  /* Test A/B: banner y tarjetas */
+  .banner { border-radius: 16px; padding: 22px 24px; margin-bottom: 18px; border: 1px solid var(--border); background: var(--surface); border-left: 6px solid var(--axis); }
+  .banner strong { display: block; font-size: 20px; line-height: 1.25; }
+  .banner p { font-size: 16px; line-height: 1.55; margin-top: 8px; color: var(--ink); }
+  .banner.good { border-left-color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--surface)); }
+  .banner.bad { border-left-color: var(--critical); background: color-mix(in srgb, var(--critical) 7%, var(--surface)); }
+  .banner.info { border-left-color: var(--accent); background: var(--accent-wash); }
+  .banner.mute { border-left-color: var(--axis); }
+  .vcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .vcard { display: grid; grid-template-columns: 110px minmax(0, 1fr); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .vcard.win { border: 2px solid var(--good); }
+  .vshot { display: block; background: var(--surface-2); }
+  .vshot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; min-height: 200px; }
+  .vbody { padding: 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .vtop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; font-size: 16px; }
+  .vdesc { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+  .warn-txt { font-size: 13px; color: var(--critical-ink); font-weight: 600; }
+  .vbig { font-size: 40px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; margin-top: 6px; }
+  .vbig span { display: block; font-size: 13px; font-weight: 500; color: var(--ink-2); letter-spacing: 0; margin-top: 6px; }
+  .vgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 4px; }
+  .vgrid div { background: var(--surface-2); border-radius: 10px; padding: 8px; }
+  .vgrid b { display: block; font-size: 17px; }
+  .vgrid span { font-size: 12px; color: var(--ink-2); }
+  .links { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; margin-top: auto; padding-top: 6px; }
+
+  /* Detalles plegables */
+  details.more { margin-top: 18px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px; }
+  details.more summary { cursor: pointer; font-weight: 600; font-size: 15px; color: var(--accent); }
+  details.more[open] summary { margin-bottom: 12px; }
+  details.more .sublabel:first-of-type { margin-top: 12px; }
+
+  /* Conexión Brevo */
+  .connect { background: var(--surface); border: 1px dashed var(--border); border-radius: 16px; padding: 22px 24px; font-size: 15px; }
+  .connect strong { display: block; font-size: 17px; margin-bottom: 8px; }
+  .connect ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 6px; color: var(--ink-2); }
+
+  /* Glosario */
+  .glossary { margin-top: 40px; }
+  .glossary dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 22px; margin: 12px 0 0; font-size: 14px; }
+  .glossary dt { font-weight: 700; }
+  .glossary dd { margin: 0; color: var(--ink-2); }
+
+  /* Tablas y textos más legibles */
+  table { font-size: 14px; }
+  th { font-size: 12px; }
+  td, th { padding: 10px 10px; }
+
+  @media (max-width: 900px) {
+    .ev-cards { grid-template-columns: 1fr; }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hbar { grid-template-columns: minmax(0, 1fr) 60px; }
+    .hbar-l { grid-column: 1 / -1; }
+    .hbar-t { grid-column: 1; }
+  }
+  @media (max-width: 560px) {
+    .top h1 { font-size: 26px; }
+    .kpi-v { font-size: 30px; }
+    .ev-big { font-size: 34px; }
+    .sec-head h2 { font-size: 20px; }
+    .vcard { grid-template-columns: 1fr; }
+    .vshot img { min-height: 0; height: 180px; }
+    .vbars { height: 190px; gap: 6px; }
+    .vb-l { font-size: 11px; }
+    .tl { grid-template-columns: 1fr; gap: 2px; }
+    .glossary dl { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -534,18 +718,6 @@ function lineChart(el, rows, { value, label, tipFn, color = "var(--series-1)", f
 }
 
 /* ---------- Views ---------- */
-function tiles(f) {
-  const v = f.visitors;
-  return `<div class="grid g4">
-    <div class="card tile hero"><div class="label">Visitantes únicos</div><div class="value">${fmt(v)}</div><div class="sub">en la landing</div></div>
-    <div class="card tile"><div class="label">Enviaron el formulario</div><div class="value">${pct(rate(f.submitters, v))}</div><div class="sub">${fmt(f.submitters)} personas</div></div>
-    <div class="card tile"><div class="label">Llegaron a la página de gracias</div><div class="value">${pct(rate(f.typ, v))}</div><div class="sub">${fmt(f.typ)} personas</div></div>
-    <div class="card tile"><div class="label">Llegaron a confirmación</div><div class="value">${pct(rate(f.confirmed, v), 2)}</div><div class="sub">${fmt(f.confirmed)} personas</div></div>
-  </div>`;
-}
-
-// Embudo en bandas: cada columna es un paso, el alto de la banda sigue la cantidad (escala log)
-// y el color de la franja y del % entre pasos indica qué tan bien pasa la gente de un paso al siguiente.
 function funnelView(f) {
   const max = f.visitors || 1;
   const steps = STEP_LABELS.map(([k, name, desc], i) => {
@@ -625,106 +797,6 @@ function sourcesTable(sources) {
 }
 
 const shotUrl = (pageId) => `/variants/${pageId}.jpg`;
-
-function versionStatus(a, v) {
-  if (a.status === "broken") return `<span class="badge-s bad">Sin resultado válido</span>`;
-  if (a.status === "winner") return a.leader === v ? `<span class="badge-s win">✓ Ganadora</span>` : `<span class="badge-s mute">Pierde</span>`;
-  if (a.status === "leading") return a.leader === v ? `<span class="badge-s lead">Va adelante</span>` : `<span class="badge-s mute">Va atrás</span>`;
-  return `<span class="badge-s mute">Sin datos</span>`;
-}
-
-function versionsGallery(ev, t, seg, a) {
-  const info = Object.fromEntries((ev.versions || []).map((v) => [v.pageId, v]));
-  const color = (i) => SERIES[i] || SERIES[SERIES.length - 1];
-  return `<p class="sublabel">Cuál es cuál · primer pantallazo en celular</p>
-    <div class="versions">${t.variants.map((v, i) => {
-      const meta = info[v.pageId] || {};
-      const lead = (a.status === "winner" || a.status === "leading") && a.leader === v;
-      return `<div class="version ${lead ? "lead" : ""}">
-        <a class="shot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener" title="Ver captura completa"><img src="${shotUrl(v.pageId)}" alt="${esc(v.label)} en celular" onerror="this.parentNode.style.display='none'"></a>
-        <div class="body">
-          <div class="name"><i class="key" style="background:${color(i)};margin-right:0"></i>${esc(v.label)}${v.isControl ? ` <span class="muted small" style="font-weight:400">(original)</span>` : ""} ${versionStatus(a, v)}</div>
-          ${meta.desc ? `<p class="desc">${esc(meta.desc)}</p>` : ""}
-          ${meta.warning ? `<p class="warn">⚠ ${esc(meta.warning)}</p>` : ""}
-          <div class="nums">
-            <div><b>${pct(rate(v[seg].submitters, v[seg].visitors))}</b><span>formulario</span></div>
-            <div><b>${fmt(v[seg].visitors)}</b><span>visitantes</span></div>
-            <div><b>${fmt(v[seg].confirmed)}</b><span>confirmaciones</span></div>
-          </div>
-          <div class="links">
-            <a href="${ev.editorUrl}?node=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Abrir en Framer ↗</a>
-            <a href="${ev.publicUrl}" target="_blank" rel="noopener" title="La página publicada muestra una versión al azar">Ver publicada ↗</a>
-          </div>
-        </div>
-      </div>`;
-    }).join("")}</div>`;
-}
-
-function abSummary() {
-  const rows = data.events.map((ev) => {
-    const t = ev.tests[0];
-    if (!t) return `<tr class="summary-row" data-goto="${ev.key}"><td>${esc(ev.name)}</td><td colspan="3" class="muted" style="text-align:left">Sin test A/B activo</td><td><span class="badge-s mute">—</span></td></tr>`;
-    const a = analyzeTest(t, "all");
-    const ctrl = t.variants.find((v) => v.isControl) || t.variants[0];
-    const other = t.variants.find((v) => v !== ctrl);
-    const status = a.status === "broken" ? `<span class="badge-s bad">Reparto roto</span>`
-      : a.status === "winner" ? `<span class="badge-s win">Gana ${esc(a.leader.label)}</span>`
-      : a.status === "leading" ? `<span class="badge-s lead">${esc(a.leader.label)} adelante · ${pct(a.conf, 0)}</span>`
-      : `<span class="badge-s mute">Sin datos</span>`;
-    return `<tr class="summary-row" data-goto="${ev.key}"><td>${esc(ev.name)}</td>
-      <td>${fmt(t.totalVisitors)}</td>
-      <td>${esc(ctrl.label)} ${pct(rate(ctrl.all.submitters, ctrl.all.visitors))}</td>
-      <td>${other ? `${esc(other.label)} ${pct(rate(other.all.submitters, other.all.visitors))}` : "—"}</td>
-      <td>${status}</td></tr>`;
-  }).join("");
-  return `<div class="card" style="margin-bottom:20px"><div class="card-head"><h3>¿Qué versión funciona mejor?</h3><span class="small muted">Test A/B más reciente de cada evento · conversión a formulario</span></div>
-    <div class="tablewrap"><table><thead><tr><th>Evento</th><th>Visitantes del test</th><th>Original</th><th>Variante</th><th>Resultado</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
-}
-
-function testCard(t, seg, isLatest, ev) {
-  const a = analyzeTest(t, seg);
-  const color = (i) => SERIES[i] || SERIES[SERIES.length - 1];
-  const cr = (v) => rate(v[seg].submitters, v[seg].visitors);
-  const maxCr = Math.max(...t.variants.map((v) => cr(v) || 0), 0.0001);
-  const live = (Date.now() - new Date(t.lastTs.replace(" ", "T") + "Z").getTime()) < 36 * 3600e3;
-  const legend = `<div class="legend">${t.variants.map((v, i) => `<span><i class="key" style="background:${color(i)}"></i>${esc(v.label)}${v.isControl ? " (original)" : ""}</span>`).join("")}</div>`;
-  return `<div class="card">
-    <div class="card-head">
-      <h3>${isLatest ? "Test más reciente" : "Test anterior"} <span class="pill ${live ? "live" : ""}">${live ? "Activo" : "Sin tráfico reciente"}</span></h3>
-      <span class="small muted">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} · ${fmt(t.totalVisitors)} visitantes</span>
-    </div>
-    <div class="status ${a.kind}"><span class="icon" aria-hidden="true">${a.kind === "bad" ? "!" : a.kind === "ok" ? "✓" : "…"}</span>
-      <div><strong>${a.title}</strong><p>${a.body}</p></div></div>
-    ${a.verdict ? `<p class="verdict">${a.verdict}</p>` : ""}
-    ${isLatest && ev ? versionsGallery(ev, t, seg, a) : ""}
-    <div class="grid g2">
-      <div>
-        <p class="sublabel">Reparto real del tráfico (todas las fuentes)</p>
-        <div class="splitbar">${t.variants.map((v, i) => `<span style="width:${v.share * 100}%;background:${color(i)}" data-tip="${esc(`<b>${v.label}</b><br>${pct(v.share)} del tráfico<br>${fmt(v.all.visitors)} visitantes`)}"></span>`).join("")}</div>
-        ${legend}
-        <p class="small muted" style="margin-top:6px">${t.variants.map((v) => `${esc(v.label)} ${pct(v.share)}`).join(" · ")}</p>
-      </div>
-      <div>
-        <p class="sublabel">Conversión a formulario${seg === "paid" ? " (solo tráfico pago)" : ""}</p>
-        <div class="cmp">${t.variants.map((v, i) => `<div class="row"><span>${esc(v.label)}</span>
-          <div class="track" data-tip="${esc(`<b>${v.label}</b><br>${pct(cr(v))} conversión<br>${fmt(v[seg].submitters)} de ${fmt(v[seg].visitors)} visitantes`)}">
-            <div class="bar" style="width:calc(${((cr(v) || 0) / maxCr) * 100}% - 60px);background:${color(i)}"></div><span class="num">${pct(cr(v))}</span></div></div>`).join("")}</div>
-      </div>
-    </div>
-    <p class="sublabel" style="margin-top:18px">Detalle por variante${seg === "paid" ? " · solo tráfico pago" : ""}</p>
-    <div class="tablewrap"><table>
-      <thead><tr><th>Variante</th><th>Visitantes</th><th>Formulario</th><th>Conv.</th><th>Gracias</th><th>Confirmación</th><th>Conv. final</th><th>Diferencia</th><th>Confianza</th></tr></thead>
-      <tbody>${t.variants.map((v, i) => {
-        const c = v.vsControl && v.vsControl[seg];
-        return `<tr><td><i class="key" style="background:${color(i)}"></i>${esc(v.label)}</td>
-          <td>${fmt(v[seg].visitors)}</td><td>${fmt(v[seg].submitters)}</td><td>${pct(cr(v))}</td>
-          <td>${fmt(v[seg].typ)}</td><td>${fmt(v[seg].confirmed)}</td><td>${pct(rate(v[seg].confirmed, v[seg].visitors), 2)}</td>
-          <td>${c && c.lift != null ? (c.lift > 0 ? "+" : "") + pct(c.lift, 0) : "base"}</td>
-          <td>${c ? pct(c.confidence) : "—"}</td></tr>`;
-      }).join("")}</tbody>
-    </table></div>
-  </div>`;
-}
 
 /* ---------- Diagnóstico ---------- */
 const DEVICE = { mobile: "Celular", desktop: "Computadora", tablet: "Tablet" };
@@ -813,127 +885,331 @@ function buildInsights(ev) {
   return out;
 }
 
-function adsView(d) {
-  if (!d.ads.length) return "";
-  const best = d.ads.filter((a) => a.visitors >= 50 && !a.flagged).sort((a, b) => crate(b) - crate(a))[0];
-  const max = Math.max(...d.ads.map((a) => crate(a) || 0), 0.0001);
-  return `<div class="section"><div class="section-head"><h2>Por anuncio</h2><span class="small muted">ID del anuncio de Meta (utm_content) · anuncios con 10+ visitantes</span></div>
-    <div class="card"><div class="tablewrap"><table>
-      <thead><tr><th>Anuncio</th><th>Campaña</th><th>Visitantes</th><th>Formulario</th><th>Conv.</th><th>Gracias</th><th>Confirmación</th><th>Conv. final</th></tr></thead>
-      <tbody>${d.ads.map((a) => `<tr>
-        <td>${a.flagged ? `<span class="flag" title="Anuncio con problemas">⚠ </span>` : a === best ? `<span class="pill live" style="margin-right:6px">Mejor</span>` : ""}<span class="mono" title="Conjunto: ${esc(a.adset)}">${esc(a.ad)}</span></td>
-        <td><span class="mono muted" title="${esc(a.campaign)}">${esc(shortId(a.campaign))}</span></td>
-        <td>${fmt(a.visitors)}</td><td>${fmt(a.submitters)}</td>
-        <td><div class="rbar"><span class="num">${pct(crate(a))}</span><i class="${a.flagged ? "bad" : ""}" style="width:${Math.round(((crate(a) || 0) / max) * 60)}px"></i></div></td>
-        <td>${fmt(a.typ)}</td><td>${fmt(a.confirmed)}</td><td>${pct(rate(a.confirmed, a.visitors), 2)}</td></tr>`).join("")}</tbody>
-    </table></div>
-    <p class="small muted" style="margin-top:10px">Buscá el ID en el Administrador de anuncios para ver de qué anuncio se trata. Para ver nombres en vez de IDs, configurá los parámetros de URL de Meta con <span class="mono">utm_content={{ad.name}}</span>.</p>
-    </div></div>`;
+const fmtDate = (iso) => new Date(iso).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+/* ---------- Presentación: piezas comunes ---------- */
+const chip = (tone, text) => `<span class="chip ${tone}">${text}</span>`;
+const kpi = (label, value, sub, tone) => `<div class="kpi ${tone}"><span class="kpi-l">${label}</span><span class="kpi-v num">${value}</span><span class="kpi-s">${sub}</span></div>`;
+const section = (n, title, sub, body) => `<section class="sec">
+  <header class="sec-head"><span class="sec-num">${n}</span><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div></header>
+  ${body}</section>`;
+const toneOf = (r) => r == null ? "mute" : r >= 0.4 ? "good" : r >= 0.25 ? "warn" : "bad";
+const segOf = () => (prefs.paid ? "paid" : "all");
+
+// Paso con menor conversión entre dos pasos consecutivos (el cuello de botella).
+function bottleneck(f) {
+  let best = null;
+  STEP_LABELS.forEach(([k, name], i) => {
+    if (!i) return;
+    const prevKey = STEP_LABELS[i - 1][0], prev = f[prevKey], val = f[k];
+    if (!prev || val > prev) return;
+    const r = val / prev;
+    if (!best || r < best.r) best = { from: STEP_LABELS[i - 1][1], to: name, r };
+  });
+  return best;
 }
 
+function versionMeta(ev, pageId) {
+  return (ev.versions || []).find((v) => v.pageId === pageId) || {};
+}
+
+/* ---------- Selector de evento ---------- */
+function eventCards() {
+  const seg = segOf();
+  return `<div class="ev-cards">${data.events.map((e) => {
+    const f = e.funnel[seg];
+    const t = e.tests[0];
+    const a = t ? analyzeTest(t, seg) : null;
+    const st = !a ? chip("mute", "Sin test A/B")
+      : a.status === "broken" ? chip("bad", "Reparto roto")
+      : a.status === "winner" ? chip("good", `Gana ${esc(a.leader.label)}`)
+      : a.status === "leading" ? chip("info", `${esc(a.leader.label)} va adelante`)
+      : chip("mute", "Sin datos suficientes");
+    const active = e.key === prefs.event;
+    return `<button type="button" class="ev-card ${active ? "on" : ""}" data-ev="${e.key}" aria-pressed="${active}">
+      <span class="ev-name">${esc(e.name)}</span>
+      <span class="ev-big num">${fmt(f.visitors)}</span>
+      <span class="ev-lbl">visitantes en ${data.range.days} días</span>
+      <span class="ev-row">${pct(rate(f.submitters, f.visitors))} completa el formulario</span>
+      ${st}
+    </button>`;
+  }).join("")}</div>`;
+}
+
+/* ---------- Resumen en lenguaje simple ---------- */
+function plainSummary(ev) {
+  const seg = segOf();
+  const f = ev.funnel[seg];
+  const lines = [];
+  if (f.visitors) {
+    const per100 = Math.round((100 * f.submitters) / f.visitors);
+    lines.push(`De cada 100 personas que llegan a la landing, <b>${per100}</b> completan el formulario.`);
+  }
+  const b = bottleneck(f);
+  if (b) lines.push(`Lo que más frena es <b>${b.from} → ${b.to}</b>: pasa solo el ${pct(b.r)} de la gente.`);
+
+  const adsOk = (ev.diagnosis?.ads || []).filter((a) => a.visitors >= 50 && !a.flagged).sort((x, y) => crate(y) - crate(x));
+  if (adsOk.length) {
+    const best = adsOk[0];
+    const worst = adsOk.length > 1 ? adsOk[adsOk.length - 1] : null;
+    lines.push(`El mejor anuncio convierte <b>${pct(crate(best))}</b>${worst ? `; el más flojo, ${pct(crate(worst))}` : ""}.`);
+  }
+  const flaggedCamps = (ev.diagnosis?.campaigns || []).filter((c) => c.flagged).length;
+  if (flaggedCamps) lines.push(`<b>${flaggedCamps}</b> campaña${flaggedCamps > 1 ? "s traen" : " trae"} tráfico que casi no interactúa: revisala en Ads Manager.`);
+
+  const t = ev.tests[0];
+  if (t) {
+    const a = analyzeTest(t, seg);
+    lines.push(a.status === "broken" ? `<b>El test A/B no sirve</b>: el tráfico no se reparte como estaba configurado.`
+      : a.status === "winner" ? `En el test A/B <b>${esc(a.leader.label)} gana</b>, con ${pct(a.conf, 0)} de confianza.`
+      : a.status === "leading" ? `En el test A/B <b>${esc(a.leader.label)} va adelante</b>, pero todavía no es concluyente.`
+      : `El test A/B todavía no tiene datos suficientes.`);
+  }
+  if (ev.email && ev.email.sequence) {
+    const ready = ev.email.sequence.filter((s) => s.ready && s.sent >= 100);
+    if (ready.length) {
+      const avg = ready.reduce((acc, s) => acc + (s.openRate || 0), 0) / ready.length;
+      lines.push(`Los mails de la secuencia se abren en promedio el <b>${pct(avg, 0)}</b>.`);
+    }
+  }
+  if (!lines.length) return "";
+  return `<div class="card summary"><h3>Lo más importante</h3><ul class="plain">${lines.map((l) => `<li>${l}</li>`).join("")}</ul></div>`;
+}
+
+function kpis(ev) {
+  const seg = segOf();
+  const f = ev.funnel[seg];
+  const b = bottleneck(f);
+  return `<div class="kpis">
+    ${kpi("Visitantes", fmt(f.visitors), "personas que llegaron a la landing", "info")}
+    ${kpi("Completaron el formulario", pct(rate(f.submitters, f.visitors)), `${fmt(f.submitters)} personas`, "info")}
+    ${kpi("Llegaron a la confirmación", fmt(f.confirmed), `${pct(rate(f.confirmed, f.visitors), 2)} de los visitantes`, "good")}
+    ${kpi("Mayor freno", b ? pct(b.r) : "—", b ? `${b.from} → ${b.to}` : "sin datos", "bad")}
+  </div>`;
+}
+
+/* ---------- 2. Anuncios ---------- */
+function adsChart(ev) {
+  const d = ev.diagnosis;
+  if (!d || !d.ads.length) return `<p class="muted">No hay anuncios con tráfico en este período.</p>`;
+  const list = d.ads.filter((a) => a.visitors >= 10).sort((a, b) => (crate(b) ?? 0) - (crate(a) ?? 0)).slice(0, 10);
+  if (!list.length) return `<p class="muted">Ningún anuncio llegó a 10 visitantes en este período.</p>`;
+  const max = Math.max(...list.map((a) => crate(a) || 0), 0.0001);
+  const valid = list.filter((a) => !a.flagged && a.visitors >= 50);
+  const bestA = valid[0], worstA = valid.length > 1 ? valid[valid.length - 1] : null;
+  return `<div class="hbars">${list.map((a) => {
+    const r = crate(a) || 0;
+    const tone = a.flagged ? "bad" : a === bestA ? "good" : a === worstA ? "warn" : "info";
+    const tag = a.flagged ? chip("bad", "Revisar") : a === bestA ? chip("good", "Mejor") : a === worstA ? chip("warn", "Más flojo") : "";
+    const tip = `<b>${esc(shortId(a.ad))}</b><br>${fmt(a.visitors)} visitantes · ${fmt(a.submitters)} formularios<br>${fmt(a.confirmed)} confirmaciones`;
+    return `<div class="hbar" data-tip="${esc(tip)}">
+      <div class="hbar-l"><span class="mono">${esc(shortId(a.ad))}</span>${tag}<span class="muted small">${fmt(a.visitors)} visitantes</span></div>
+      <div class="hbar-t"><i class="${tone}" style="width:${(r / max) * 100}%"></i></div>
+      <div class="hbar-v num">${pct(r)}</div>
+    </div>`;
+  }).join("")}</div>
+  <p class="note">Conversión = de las personas que llegaron desde el anuncio, cuántas llenaron el formulario. Verde: mejor anuncio. Amarillo: el más flojo. Rojo: campaña con problemas.</p>`;
+}
+
+/* ---------- 3. Test A/B ---------- */
+function variantDetailTable(t, seg) {
+  const cr = (v) => rate(v[seg].submitters, v[seg].visitors);
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Variante</th><th>Visitantes</th><th>Formularios</th><th>Conversión</th><th>Confirmaciones</th><th>Diferencia</th><th>Confianza</th></tr></thead>
+    <tbody>${t.variants.map((v) => {
+      const c = v.vsControl && v.vsControl[seg];
+      return `<tr><td>${esc(v.label)}${v.isControl ? " (original)" : ""}</td><td>${fmt(v[seg].visitors)}</td><td>${fmt(v[seg].submitters)}</td>
+        <td>${pct(cr(v))}</td><td>${fmt(v[seg].confirmed)}</td>
+        <td>${c && c.lift != null ? (c.lift > 0 ? "+" : "") + pct(c.lift, 0) : "base"}</td><td>${c ? pct(c.confidence) : "—"}</td></tr>`;
+    }).join("")}</tbody></table></div>`;
+}
+
+function abView(ev) {
+  const seg = segOf();
+  const [latest, ...older] = ev.tests;
+  if (!latest) {
+    return `<div class="card"><p class="ink-2">No hay tests A/B con tráfico en esta landing en los últimos 90 días. Esta es la versión publicada:</p>
+      <div class="vcards">${(ev.versions || []).map((v) => versionCard(ev, v, null, seg)).join("")}</div></div>`;
+  }
+  const a = analyzeTest(latest, seg);
+  const toneBanner = { broken: "bad", winner: "good", leading: "info", nodata: "mute" }[a.status] || "mute";
+  const banner = `<div class="banner ${toneBanner}"><strong>${a.title}</strong><p>${a.verdict || a.body}</p></div>`;
+  const cards = `<div class="vcards">${latest.variants.map((v) => {
+    const isWin = a.status === "winner" && a.leader === v;
+    const isLose = a.status === "winner" && a.leader !== v;
+    const badge = a.status === "broken" ? chip("bad", "Sin resultado válido")
+      : isWin ? chip("good", "Ganadora")
+      : isLose ? chip("mute", "Pierde")
+      : a.status === "leading" ? (a.leader === v ? chip("info", "Va adelante") : chip("mute", "Va atrás"))
+      : chip("mute", "Sin datos");
+    return versionCard(ev, v, badge, seg, isWin);
+  }).join("")}</div>`;
+  const maxCr = Math.max(...latest.variants.map((v) => rate(v[seg].submitters, v[seg].visitors) || 0), 0.0001);
+  const bars = `<div class="hbars">${latest.variants.map((v) => {
+    const r = rate(v[seg].submitters, v[seg].visitors) || 0;
+    return `<div class="hbar"><div class="hbar-l"><span>${esc(v.label)}</span></div>
+      <div class="hbar-t"><i class="${v === a.leader && a.status !== "broken" ? "good" : "info"}" style="width:${(r / maxCr) * 100}%"></i></div>
+      <div class="hbar-v num">${pct(r)}</div></div>`;
+  }).join("")}</div>`;
+  const older_ = older.length ? `<details class="more"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary>
+    ${older.map((t) => `<p class="sublabel">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short" })} · ${fmt(t.totalVisitors)} visitantes</p>${variantDetailTable(t, seg)}`).join("")}</details>` : "";
+  return `${banner}${cards}
+    <div class="card-sub"><h3>Conversión a formulario, lado a lado</h3>${bars}</div>
+    <details class="more"><summary>Ver tabla completa del test</summary>${variantDetailTable(latest, seg)}</details>
+    ${older_}`;
+}
+
+function versionCard(ev, v, badge, seg, isWin = false) {
+  const meta = versionMeta(ev, v.pageId);
+  const s = v[seg] || { visitors: 0, submitters: 0, confirmed: 0 };
+  const r = rate(s.submitters, s.visitors);
+  return `<div class="vcard ${isWin ? "win" : ""}">
+    <a class="vshot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener" title="Ver captura completa"><img src="${shotUrl(v.pageId)}" alt="${esc(v.label)} en celular" onerror="this.parentNode.style.display='none'"></a>
+    <div class="vbody">
+      <div class="vtop"><strong>${esc(v.label)}${v.isControl ? ` <span class="muted small">(original)</span>` : ""}</strong>${badge || ""}</div>
+      ${meta.desc ? `<p class="vdesc">${esc(meta.desc)}</p>` : ""}
+      ${meta.warning ? `<p class="warn-txt">⚠ ${esc(meta.warning)}</p>` : ""}
+      <div class="vbig num">${pct(r)}<span>llenan el formulario</span></div>
+      <div class="vgrid">
+        <div><b class="num">${fmt(s.visitors)}</b><span>visitantes</span></div>
+        <div><b class="num">${fmt(s.submitters)}</b><span>formularios</span></div>
+        <div><b class="num">${fmt(s.confirmed)}</b><span>confirmaciones</span></div>
+      </div>
+      ${v.share != null ? `<p class="small muted">Recibe el ${pct(v.share, 0)} del tráfico</p>` : ""}
+      <div class="links"><a href="${ev.editorUrl}?node=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Abrir en Framer ↗</a><a href="${ev.publicUrl}" target="_blank" rel="noopener">Ver publicada ↗</a></div>
+    </div>
+  </div>`;
+}
+
+/* ---------- 4. Emails ---------- */
+function emailBody(e) {
+  const seq = e.sequence;
+  if (!seq.length) return `<p class="ink-2">Todavía no se envió ningún mail de esta secuencia.</p>`;
+  const ready = seq.filter((s) => s.ready && s.sent >= 1);
+  const avgOpen = ready.length ? ready.reduce((t, s) => t + (s.openRate || 0), 0) / ready.length : null;
+  const avgClick = ready.length ? ready.reduce((t, s) => t + (s.clickRate || 0), 0) / ready.length : null;
+  const bajas = seq.reduce((t, s) => t + s.unsubs, 0);
+  const alcance = seq.reduce((t, s) => t + s.sent, 0);
+  const kpiRow = `<div class="kpis">
+    ${kpi("Mails enviados", fmt(seq.length), "en la secuencia", "info")}
+    ${kpi("Personas alcanzadas", fmt(alcance), "suma de envíos", "info")}
+    ${kpi("Apertura promedio", avgOpen == null ? "—" : pct(avgOpen, 0), "de los mails ya cerrados", toneOf(avgOpen) === "good" ? "good" : toneOf(avgOpen) === "warn" ? "warn" : avgOpen == null ? "info" : "bad")}
+    ${kpi("Bajas", fmt(bajas), bajas ? "personas que dejaron de recibir" : "nadie se dio de baja", bajas ? "warn" : "good")}
+  </div>`;
+  const cols = seq.map((s) => {
+    const h = s.openRate == null ? 4 : Math.max(4, Math.round(s.openRate * 100));
+    const tone = !s.ready ? "pending" : toneOf(s.openRate);
+    const tip = `<b>G${s.step ?? "?"} · ${esc(s.name)}</b><br>${fmt(s.sent)} enviados<br>${s.ready ? `${pct(s.openRate)} abrieron · ${pct(s.clickRate)} hicieron clic` : "Menos de 24 h: el dato todavía está incompleto"}`;
+    return `<div class="vb" data-tip="${esc(tip)}">
+      <span class="vb-v num">${s.ready ? pct(s.openRate, 0) : "…"}</span>
+      <div class="vb-t"><i class="${tone}" style="height:${h}%"></i></div>
+      <span class="vb-l">G${s.step ?? "?"}</span>
+    </div>`;
+  }).join("");
+  const chart = `<p class="sublabel">Cuánta gente abre cada mail</p>
+    <div class="vbars">${cols}</div>
+    <div class="legend2"><span><i class="good"></i>40% o más</span><span><i class="warn"></i>25% a 40%</span><span><i class="bad"></i>menos de 25%</span><span><i class="pending"></i>menos de 24 h</span></div>`;
+  const upcoming = e.upcoming.length
+    ? `<p class="sublabel">Próximos envíos programados</p><div class="timeline">${e.upcoming.slice(0, 8).map((u) => `<div class="tl"><span class="tl-d num">${fmtDate(u.scheduledAt)}</span><span class="tl-n">${esc(u.name)}</span></div>`).join("")}</div>`
+    : "";
+  const ideas = e.suggestions.length
+    ? `<h3 class="block-h">Qué mejorar</h3><div class="ideas">${e.suggestions.map((i) => `<div class="idea ${i.kind}"><span class="idea-ic" aria-hidden="true">${{ critical: "!", warning: "!", info: "i", good: "✓" }[i.kind]}</span><div><span class="tag">${esc(i.tag)}</span><strong>${esc(i.title)}</strong><p>${esc(i.body)}</p></div></div>`).join("")}</div>`
+    : "";
+  const table = `<details class="more"><summary>Ver tabla con todos los mails</summary><div class="tablewrap"><table>
+    <thead><tr><th>Mail</th><th>Enviado</th><th>Destinatarios</th><th>Apertura</th><th>Clics</th><th>Bajas</th></tr></thead>
+    <tbody>${seq.map((s) => `<tr><td>G${s.step ?? "—"} · ${esc(s.name)}</td><td class="num">${fmtDate(s.sentDate)}</td><td class="num">${fmt(s.sent)}</td>
+      <td class="num">${s.ready ? pct(s.openRate) : `<span class="muted">${pct(s.openRate)} · incompleto</span>`}</td><td class="num">${pct(s.clickRate)}</td><td class="num">${fmt(s.unsubs)}</td></tr>`).join("")}</tbody>
+  </table></div></details>`;
+  return `${kpiRow}<div class="card-sub">${chart}${upcoming}</div>${ideas}${table}
+    <p class="note">Las aperturas de Brevo incluyen las precargas de Apple Mail, así que están algo infladas. Sirven para comparar mails entre sí.</p>`;
+}
+
+function emailView(ev) {
+  let body;
+  if (!data.email?.connected) {
+    body = `<div class="connect"><strong>Todavía no hay conexión con Brevo.</strong>
+      <ol><li>En Brevo, creá una API key con permiso de lectura de campañas.</li>
+      <li>En Vercel, agregá la variable <span class="mono">BREVO_API_KEY</span>.</li>
+      <li>Hacé un Redeploy. Esta sección se llena sola.</li></ol></div>`;
+  } else if (data.email.error) {
+    body = `<p class="err">No se pudo leer Brevo: ${esc(data.email.error)}</p>`;
+  } else if (!ev.email) {
+    body = `<p class="ink-2">No hay campañas de Brevo que coincidan con ${esc(ev.name)}.</p>`;
+  } else {
+    body = emailBody(ev.email);
+  }
+  return section(4, "Secuencia de emails", "Los mails que recibe la gente que se anotó: si los abren, si hacen clic y qué conviene cambiar.", body);
+}
+
+/* ---------- 5. Diagnóstico ---------- */
 function diagnosisView(ev) {
   const d = ev.diagnosis;
   const ins = buildInsights(ev);
   const icon = { critical: "!", warning: "!", info: "i", good: "✓" };
-  const maxRate = (list) => Math.max(...list.map((x) => crate(x) || 0), 0.0001);
-  const rbar = (g, max, bad) => `<div class="rbar"><span class="num">${pct(crate(g))}</span><i class="${bad ? "bad" : ""}" style="width:${Math.round(((crate(g) || 0) / max) * 60)}px"></i></div>`;
-  const cm = maxRate(d.campaigns), sm = maxRate(d.segments);
-  return `
-    <div class="section"><div class="section-head"><h2>Diagnóstico</h2><span class="small muted">Todas las fuentes · últimos ${data.range.days} días</span></div>
-      <div class="insights">${ins.map((i) => `<div class="insight ${i.kind}"><span class="icon" aria-hidden="true">${icon[i.kind]}</span><div><span class="tag">${esc(i.tag)}</span><strong>${esc(i.title)}</strong><p>${esc(i.body)}</p></div></div>`).join("")}</div>
+  const bars = (list, label, tipFn) => {
+    const max = Math.max(...list.map((x) => crate(x) || 0), 0.0001);
+    return `<div class="hbars">${list.map((x) => `<div class="hbar" data-tip="${esc(tipFn(x))}">
+      <div class="hbar-l"><span>${esc(label(x))}</span>${x.flagged ? chip("bad", "Revisar") : ""}<span class="muted small">${fmt(x.visitors)} visitantes</span></div>
+      <div class="hbar-t"><i class="${x.flagged ? "bad" : "info"}" style="width:${((crate(x) || 0) / max) * 100}%"></i></div>
+      <div class="hbar-v num">${pct(crate(x))}</div></div>`).join("")}</div>`;
+  };
+  const devBars = bars(d.segments, (s) => segLabel(s), (s) => `<b>${esc(segLabel(s))}</b><br>${fmt(s.visitors)} visitantes · ${fmt(s.submitters)} formularios`);
+  const campBars = bars(d.campaigns, (c) => shortId(c.campaign), (c) => `<b>${esc(c.campaign || "(sin campaña)")}</b><br>${fmt(c.visitors)} visitantes · ${fmt(c.submitters)} formularios`);
+  const outbound = d.outbound.length
+    ? `<div class="tablewrap"><table><thead><tr><th>Destino</th><th>Personas</th></tr></thead><tbody>${d.outbound.map((o) => `<tr><td>${linkKind(o.href) === "other-page" ? `<span class="flag">⚠ </span>` : ""}<span class="mono">${esc(o.href.replace(/^https?:\/\//, "").slice(0, 48))}</span></td><td>${fmt(o.visitors)}</td></tr>`).join("")}</tbody></table></div>`
+    : `<p class="small muted">Nadie salió por enlaces en este período.</p>`;
+  return section(5, "Diagnóstico", "Qué está funcionando, qué no, y qué probar primero.", `
+    <div class="ideas">${ins.map((i) => `<div class="idea ${i.kind}"><span class="idea-ic" aria-hidden="true">${icon[i.kind]}</span><div><span class="tag">${esc(i.tag)}</span><strong>${esc(i.title)}</strong><p>${esc(i.body)}</p></div></div>`).join("")}</div>
+    <div class="grid g2 block">
+      <div class="card-sub"><h3>Dispositivos</h3><p class="small muted">Cuántos de cada tipo completan el formulario.</p>${devBars}</div>
+      <div class="card-sub"><h3>Campañas de Meta</h3><p class="small muted">Cuántos de los que llegan desde cada campaña completan el formulario.</p>${campBars}</div>
     </div>
-    <div class="section"><div class="section-head"><h2>Por campaña</h2><span class="small muted">ID de campaña de Meta (utm_campaign)</span></div>
-      <div class="card"><div class="tablewrap"><table>
-        <thead><tr><th>Campaña</th><th>Fuente</th><th>Visitantes</th><th>% del tráfico</th><th>Interactúan</th><th>Formulario</th><th>Conversión</th></tr></thead>
-        <tbody>${d.campaigns.map((c) => `<tr>
-          <td>${c.flagged ? `<span class="flag" title="Campaña con problemas">⚠ </span>` : ""}<span class="mono" title="${esc(c.campaign)}">${esc(c.campaign || "(sin campaña)")}</span></td>
-          <td title="${esc(c.sources.map((x) => `${SOURCE[x.src] ?? x.src} ${pct(x.share, 0)}`).join(" · "))}">${esc(c.sources.filter((x) => x.share >= 0.05).map((x) => `${SOURCE[x.src] ?? x.src} ${pct(x.share, 0)}`).join(", "))}</td><td>${fmt(c.visitors)}</td><td>${pct(rate(c.visitors, d.total.visitors), 0)}</td>
-          <td>${pct(rate(c.interacted, c.visitors), 0)}</td><td>${fmt(c.submitters)}</td><td>${rbar(c, cm, c.flagged)}</td></tr>`).join("")}</tbody>
-      </table></div></div></div>
-    ${adsView(d)}
-    <div class="section"><div class="grid g2">
-      <div class="card"><div class="card-head"><h3>Por dispositivo</h3><span class="small muted">sin campañas con problemas</span></div>
-        <div class="tablewrap"><table>
-          <thead><tr><th>Dispositivo</th><th>Visitantes</th><th>Formulario</th><th>Conversión</th></tr></thead>
-          <tbody>${d.segments.map((s) => `<tr><td>${s.flagged ? `<span class="flag">⚠ </span>` : ""}${esc(segLabel(s))}</td><td>${fmt(s.visitors)}</td><td>${fmt(s.submitters)}</td><td>${rbar(s, sm, s.flagged)}</td></tr>`).join("")}</tbody>
-        </table></div></div>
-      <div class="card"><div class="card-head"><h3>Enlaces que sacan de la página</h3><span class="small muted">personas únicas</span></div>
-        ${d.outbound.length ? `<div class="tablewrap"><table>
-          <thead><tr><th>Destino</th><th>Personas</th></tr></thead>
-          <tbody>${d.outbound.map((o) => `<tr><td>${linkKind(o.href) === "other-page" ? `<span class="flag">⚠ </span>` : ""}<span class="mono">${esc(o.href.replace(/^https?:\/\//, "").slice(0, 48))}</span></td><td>${fmt(o.visitors)}</td></tr>`).join("")}</tbody>
-        </table></div>` : `<p class="small muted">Nadie salió por enlaces en este período.</p>`}
-      </div>
-    </div></div>`;
+    <details class="more"><summary>Enlaces que sacan a la gente de la página</summary>${outbound}</details>
+    <details class="more"><summary>Tabla de anuncios y campañas</summary>${adsTable(d)}</details>`);
 }
 
-
-function adsStrip(ev) {
-  const ads = (ev.diagnosis?.ads || []).filter((a) => a.visitors >= 20).sort((a, b) => b.visitors - a.visitors).slice(0, 6);
-  if (!ads.length) return "";
-  return `<div class="ads-strip"><h3>Anuncios que traen tráfico a esta landing</h3>
-    <div class="tablewrap"><table>
-      <thead><tr><th>Anuncio</th><th>Visitantes</th><th>Interactúan</th><th>Formulario</th><th>Confirmación</th></tr></thead>
-      <tbody>${ads.map((a) => `<tr><td>${a.flagged ? `<span class="badge-s bad">Revisar</span> ` : ""}${esc(shortId(a.ad))}</td>
-        <td>${fmt(a.visitors)}</td><td>${pct(rate(a.interacted, a.visitors), 0)}</td><td>${pct(rate(a.submitters, a.visitors))}</td><td>${fmt(a.confirmed)}</td></tr>`).join("")}</tbody>
-    </table></div></div>`;
+function adsTable(d) {
+  return `<div class="tablewrap"><table>
+    <thead><tr><th>Anuncio</th><th>Campaña</th><th>Visitantes</th><th>Formulario</th><th>Conv.</th><th>Confirmación</th></tr></thead>
+    <tbody>${d.ads.map((a) => `<tr><td><span class="mono">${esc(a.ad)}</span></td><td><span class="mono muted">${esc(shortId(a.campaign))}</span></td>
+      <td>${fmt(a.visitors)}</td><td>${fmt(a.submitters)}</td><td>${pct(crate(a))}</td><td>${fmt(a.confirmed)}</td></tr>`).join("")}</tbody></table></div>`;
 }
 
-const fmtDate = (iso) => new Date(iso).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
-
-function emailView(ev) {
-  const head = `<div class="section-head"><h2>Secuencia de emails</h2><span class="small muted">Brevo · campañas de ${esc(ev.name)}</span></div>`;
-  if (!data.email?.connected) return `<div class="section">${head}<div class="card"><p class="ink-2">Conectá Brevo para ver aperturas, clicks y bajas de cada mail de la secuencia, y recibir ideas de mejora. Falta cargar <code>BREVO_API_KEY</code> en Vercel (API key de Brevo con permiso de lectura de campañas).</p></div></div>`;
-  if (data.email.error) return `<div class="section">${head}<div class="card"><p class="ink-2">No se pudo leer Brevo: ${esc(data.email.error)}</p></div></div>`;
-  const e = ev.email;
-  if (!e) return "";
-  const rows = e.sequence.map((s) => `<tr>
-      <td>G${s.step ?? "—"}</td><td>${esc(s.name)}</td><td class="num">${fmtDate(s.sentDate)}</td><td class="num">${fmt(s.sent)}</td>
-      <td class="num">${s.ready ? pct(s.openRate) : `<span class="muted">${pct(s.openRate)} · incompleto</span>`}
-        <div class="mbar"><i style="width:${Math.round((s.openRate || 0) * 100)}%"></i></div></td>
-      <td class="num">${pct(s.clickRate)}</td><td class="num">${fmt(s.unsubs)}</td></tr>`).join("");
-  const table = e.sequence.length
-    ? `<div class="tablewrap"><table><thead><tr><th>Paso</th><th>Mail</th><th>Enviado</th><th>Destinatarios</th><th>Apertura</th><th>Clicks</th><th>Bajas</th></tr></thead><tbody>${rows}</tbody></table></div>`
-    : `<p class="ink-2">Todavía no se envió ningún mail de esta secuencia.</p>`;
-  const upcoming = e.upcoming.length
-    ? `<div class="card-head" style="margin-top:16px"><h3>Próximos envíos</h3></div><ul class="upcoming">${e.upcoming.slice(0, 8).map((u) => `<li><span class="num">${fmtDate(u.scheduledAt)}</span> · ${esc(u.name)}</li>`).join("")}</ul>`
-    : "";
-  const ideas = e.suggestions.length
-    ? `<div class="card-head" style="margin-top:16px"><h3>Ideas para mejorar la secuencia</h3></div><div class="insights">${e.suggestions.map((i) => `<div class="insight ${i.kind}"><span class="icon" aria-hidden="true">${{ critical: "!", warning: "!", info: "i", good: "✓" }[i.kind]}</span><div><span class="tag">${esc(i.tag)}</span><strong>${esc(i.title)}</strong><p>${esc(i.body)}</p></div></div>`).join("")}</div>`
-    : "";
-  return `<div class="section">${head}<div class="card">${table}${upcoming}${ideas}
-    <p class="fx-note">Las aperturas de Brevo cuentan también las precargas de Apple Mail, así que están un poco infladas. Usalas para comparar mails entre sí, no como cifra exacta.</p></div></div>`;
-}
-
+/* ---------- Vista de un evento ---------- */
 function eventView(ev) {
-  const seg = prefs.paid ? "paid" : "all";
+  const seg = segOf();
   const f = ev.funnel[seg];
-  const daily = ev.funnel.daily;
-  const [latest, ...older] = ev.tests;
+  const pathsInfo = `Landing ${esc(ev.paths.landing)}`;
   return `
-    ${tiles(f)}
-    ${ev.diagnosis ? diagnosisView(ev) : ""}
-    <div class="section"><div class="section-head"><h2>Funnel</h2><span class="small muted">${prefs.paid ? "Solo tráfico pago (con UTM)" : "Todas las fuentes"} · últimos ${data.range.days} días</span></div>
-      <div class="card">${funnelView(f)}${adsStrip(ev)}</div></div>
-    <div class="section"><div class="section-head"><h2>Por día</h2></div>
-      <div class="grid g2">
-        <div class="card"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
-        <div class="card"><div class="card-head"><h3>Conversión a formulario por día</h3><span class="small muted">días con 20+ visitantes</span></div><div class="chart" id="c-rate"></div></div>
-      </div></div>
-    <div class="section"><div class="section-head"><h2>Test A/B</h2><span class="small muted">Comparación contra la original · ${prefs.paid ? "solo tráfico pago" : "todas las fuentes"}</span></div>
-      ${latest ? `<div class="ab">${testCard(latest, seg, true, ev)}
-        ${older.length ? `<details class="older"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary><div class="ab">${older.map((t) => testCard(t, seg, false, ev)).join("")}</div></details>` : ""}</div>`
-        : `<div class="card"><p class="ink-2" style="margin-bottom:12px">No hay tests A/B con tráfico en esta landing en los últimos 90 días. Esta es la versión que está publicada:</p>
-          <div class="versions" style="max-width:280px">${(ev.versions || []).map((v) => `<div class="version"><a class="shot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener"><img src="${shotUrl(v.pageId)}" alt="${esc(v.label)}" onerror="this.parentNode.style.display='none'"></a>
-            <div class="body"><div class="name">${esc(v.label)}</div><p class="desc">${esc(v.desc || "")}</p>
-            <div class="links"><a href="${ev.editorUrl}?node=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Abrir en Framer ↗</a><a href="${ev.publicUrl}" target="_blank" rel="noopener">Ver publicada ↗</a></div></div></div>`).join("")}</div></div>`}
-    </div>
+    ${plainSummary(ev)}
+    ${kpis(ev)}
+    ${section(1, "Embudo", `De visitante a confirmado. Cada columna es un paso; el color muestra qué tan bien pasa la gente al siguiente (verde bien, rojo mal). ${pathsInfo}.`,
+      `<div class="card big">${funnelView(f)}</div>`)}
+    ${section(2, "Anuncios de esta landing", "Qué anuncios traen gente que sí llena el formulario.",
+      `<div class="card big">${ev.diagnosis ? adsChart(ev) : ""}</div>`)}
+    ${section(3, "Test A/B", `Dos versiones de la misma landing, mostradas a personas distintas para ver cuál convierte más. Con ${prefs.paid ? "solo tráfico pago" : "todas las fuentes"}.`,
+      abView(ev))}
     ${emailView(ev)}
-    <div class="section"><div class="section-head"><h2>Fuentes de tráfico</h2><span class="small muted">Todas las fuentes · últimos ${data.range.days} días</span></div>
-      <div class="card">${sourcesTable(ev.funnel.sources)}</div></div>`;
+    ${ev.diagnosis ? diagnosisView(ev) : ""}
+    ${section(6, "Visitantes y conversión por día", "Cada columna es un día. Sirve para ver si algo subió o bajó después de un cambio.",
+      `<div class="grid g2">
+        <div class="card big"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
+        <div class="card big"><div class="card-head"><h3>% que llena el formulario</h3><span class="small muted">días con 20+ visitantes</span></div><div class="chart" id="c-rate"></div></div>
+      </div>`)}
+    ${section(7, "Fuentes de tráfico", "De dónde llega la gente.",
+      `<div class="card big">${sourcesTable(ev.funnel.sources)}</div>`)}
+    <div class="card glossary"><h3>Glosario</h3><dl>
+      <dt>Conversión</dt><dd>De las personas de un paso, cuántas pasan al siguiente.</dd>
+      <dt>Test A/B</dt><dd>Dos versiones de la landing. Gana la que convierte más con confianza suficiente (95%).</dd>
+      <dt>Reparto roto</dt><dd>El tráfico no se divide como lo configuraste, así que la comparación no sirve.</dd>
+      <dt>Apertura / Clics</dt><dd>Qué porcentaje de los destinatarios abrió el mail o hizo clic en un enlace.</dd>
+      <dt>Bajas</dt><dd>Personas que pidieron dejar de recibir la secuencia.</dd>
+      <dt>Tráfico pago</dt><dd>Visitas que llegan con parámetros de Meta (Facebook e Instagram).</dd>
+    </dl></div>`;
 }
 
 function drawCharts(ev) {
-  const seg = prefs.paid ? "paid" : "all";
+  const seg = segOf();
   const rows = ev.funnel.daily;
   const cv = document.getElementById("c-visitors"), cr = document.getElementById("c-rate");
   if (!cv || !rows.length) return;
@@ -956,7 +1232,7 @@ function render() {
   const daysBtns = [7, 14, 30, 90].map((d) => `<button type="button" data-days="${d}" aria-pressed="${prefs.days === d}">${d} días</button>`).join("");
   app.innerHTML = `
     <header class="top">
-      <div class="brand"><span class="eyebrow">Highway Trading Academy</span><h1>Funnels y tests A/B de eventos</h1>
+      <div class="brand"><span class="eyebrow">Highway Trading Academy</span><h1>Eventos: cómo va cada landing</h1>
         <p class="small muted">${data ? `Actualizado ${dateFmt(data.generatedAt, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} (hora Argentina)${data.cached ? " · desde caché" : ""}` : ""}</p></div>
       <div class="controls">
         <div class="seg" role="group" aria-label="Período">${daysBtns}</div>
@@ -964,21 +1240,18 @@ function render() {
         <button class="btn" id="refresh" ${loading ? "disabled" : ""}>${loading ? "Actualizando…" : "Actualizar"}</button>
       </div>
     </header>
-    ${data ? abSummary() : ""}
-    ${data ? `<nav class="tabs" role="tablist">${data.events.map((e) => `<button role="tab" data-ev="${e.key}" aria-selected="${ev && e.key === ev.key}">${esc(e.name)}${e.tests[0] && e.tests[0].srm && e.tests[0].srm.broken ? `<span class="badge" title="Test con reparto roto"></span>` : ""}</button>`).join("")}</nav>` : ""}
+    ${data ? eventCards() : ""}
     ${lastError ? `<div class="card" style="margin-bottom:16px"><p class="err">No se pudieron cargar los datos: ${esc(lastError)}</p></div>` : ""}
     ${ev ? eventView(ev) : loading ? `<div class="loading">Consultando la analítica de Framer… (puede tardar unos segundos)</div>` : ""}
     ${data ? `<div class="notes">
-      <p>Fuente: analítica de Framer del proyecto Eventos. Visitantes únicos por día; cada paso del funnel cuenta a quienes vieron la landing y después avanzaron ese mismo día.</p>
-      <p>Confianza: test z de dos proporciones sobre la conversión a formulario, variante contra original. Se considera ganador desde 95%. "Reparto roto" = el tráfico se aleja de lo configurado más de lo que explica el azar (p &lt; 0,001).</p>
-      <p>"Tráfico pago" = visitas que llegan con UTM (Facebook, Instagram). El directo suele incluir al equipo entrando a revisar la página.</p>
-      <p>Diagnóstico: Framer registra visitas, clics y formularios, pero no cuánto scrollea cada persona ni cuánto tiempo se queda. Para ver exactamente en qué parte abandonan hace falta un mapa de calor (por ejemplo Microsoft Clarity, gratis).</p>
+      <p>Fuente: analítica de Framer del proyecto Eventos. Cada paso cuenta a quienes vieron la landing y después avanzaron ese mismo día.</p>
+      <p>Confianza: test z de dos proporciones sobre la conversión a formulario, variante contra original. Se considera ganador desde 95%.</p>
+      <p>Diagnóstico: Framer registra visitas, clics y formularios, pero no cuánto scrollea cada persona. Para eso sirve un mapa de calor (por ejemplo Microsoft Clarity, gratis).</p>
       <p>Sesión: ${esc(store.get(EMAIL_STORE) || "")} · <a href="#" id="logout" style="color:inherit">Cerrar sesión</a></p>
     </div>` : ""}`;
 
   app.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => { prefs.days = +b.dataset.days; savePrefs(); load(); }));
-  app.querySelectorAll("[data-ev]").forEach((b) => b.addEventListener("click", () => { prefs.event = b.dataset.ev; savePrefs(); render(); }));
-  app.querySelectorAll("[data-goto]").forEach((r) => r.addEventListener("click", () => { prefs.event = r.dataset.goto; savePrefs(); render(); const ab = [...document.querySelectorAll("h2")].find((h) => h.textContent === "Test A/B"); if (ab) ab.scrollIntoView({ behavior: "smooth" }); }));
+  app.querySelectorAll("[data-ev]").forEach((b) => b.addEventListener("click", () => { prefs.event = b.dataset.ev; savePrefs(); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
   const paid = document.getElementById("paid");
   if (paid) paid.addEventListener("change", () => { prefs.paid = paid.checked; savePrefs(); render(); });
   const refresh = document.getElementById("refresh");
