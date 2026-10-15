@@ -176,6 +176,12 @@
   .fx-rate.mute { background: var(--surface-2); color: var(--muted); }
   .fx-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
 
+  .mbar { height: 6px; min-width: 70px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin-top: 4px; }
+  .mbar i { display: block; height: 100%; background: var(--accent); }
+  .ads-strip { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .ads-strip h3 { font-size: 14px; margin-bottom: 8px; }
+  .upcoming { list-style: none; padding: 0; margin: 0; font-size: 13px; color: var(--ink-2); display: flex; flex-direction: column; gap: 4px; }
+
   /* Charts */
   .chart { width: 100%; position: relative; }
   .chart svg { display: block; width: 100%; overflow: visible; }
@@ -803,6 +809,7 @@ function buildInsights(ev) {
       ? "El formulario no es el problema: quien empieza, termina. La pérdida está arriba de todo (primer pantallazo, promesa, video). Ahí conviene testear."
       : "Mucha gente interactúa pero no termina el formulario: revisá cantidad de campos, validaciones y velocidad en celular.",
   });
+  for (const n of ev.notes || []) out.push({ kind: n.kind || "warning", tag: "Landing", title: n.title, body: n.body || "" });
   return out;
 }
 
@@ -860,6 +867,43 @@ function diagnosisView(ev) {
 }
 
 
+function adsStrip(ev) {
+  const ads = (ev.diagnosis?.ads || []).filter((a) => a.visitors >= 20).sort((a, b) => b.visitors - a.visitors).slice(0, 6);
+  if (!ads.length) return "";
+  return `<div class="ads-strip"><h3>Anuncios que traen tráfico a esta landing</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Anuncio</th><th>Visitantes</th><th>Interactúan</th><th>Formulario</th><th>Confirmación</th></tr></thead>
+      <tbody>${ads.map((a) => `<tr><td>${a.flagged ? `<span class="badge-s bad">Revisar</span> ` : ""}${esc(shortId(a.ad))}</td>
+        <td>${fmt(a.visitors)}</td><td>${pct(rate(a.interacted, a.visitors), 0)}</td><td>${pct(rate(a.submitters, a.visitors))}</td><td>${fmt(a.confirmed)}</td></tr>`).join("")}</tbody>
+    </table></div></div>`;
+}
+
+const fmtDate = (iso) => new Date(iso).toLocaleString("es-AR", { timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+function emailView(ev) {
+  const head = `<div class="section-head"><h2>Secuencia de emails</h2><span class="small muted">Brevo · campañas de ${esc(ev.name)}</span></div>`;
+  if (!data.email?.connected) return `<div class="section">${head}<div class="card"><p class="ink-2">Conectá Brevo para ver aperturas, clicks y bajas de cada mail de la secuencia, y recibir ideas de mejora. Falta cargar <code>BREVO_API_KEY</code> en Vercel (API key de Brevo con permiso de lectura de campañas).</p></div></div>`;
+  if (data.email.error) return `<div class="section">${head}<div class="card"><p class="ink-2">No se pudo leer Brevo: ${esc(data.email.error)}</p></div></div>`;
+  const e = ev.email;
+  if (!e) return "";
+  const rows = e.sequence.map((s) => `<tr>
+      <td>G${s.step ?? "—"}</td><td>${esc(s.name)}</td><td class="num">${fmtDate(s.sentDate)}</td><td class="num">${fmt(s.sent)}</td>
+      <td class="num">${s.ready ? pct(s.openRate) : `<span class="muted">${pct(s.openRate)} · incompleto</span>`}
+        <div class="mbar"><i style="width:${Math.round((s.openRate || 0) * 100)}%"></i></div></td>
+      <td class="num">${pct(s.clickRate)}</td><td class="num">${fmt(s.unsubs)}</td></tr>`).join("");
+  const table = e.sequence.length
+    ? `<div class="tablewrap"><table><thead><tr><th>Paso</th><th>Mail</th><th>Enviado</th><th>Destinatarios</th><th>Apertura</th><th>Clicks</th><th>Bajas</th></tr></thead><tbody>${rows}</tbody></table></div>`
+    : `<p class="ink-2">Todavía no se envió ningún mail de esta secuencia.</p>`;
+  const upcoming = e.upcoming.length
+    ? `<div class="card-head" style="margin-top:16px"><h3>Próximos envíos</h3></div><ul class="upcoming">${e.upcoming.slice(0, 8).map((u) => `<li><span class="num">${fmtDate(u.scheduledAt)}</span> · ${esc(u.name)}</li>`).join("")}</ul>`
+    : "";
+  const ideas = e.suggestions.length
+    ? `<div class="card-head" style="margin-top:16px"><h3>Ideas para mejorar la secuencia</h3></div><div class="insights">${e.suggestions.map((i) => `<div class="insight ${i.kind}"><span class="icon" aria-hidden="true">${{ critical: "!", warning: "!", info: "i", good: "✓" }[i.kind]}</span><div><span class="tag">${esc(i.tag)}</span><strong>${esc(i.title)}</strong><p>${esc(i.body)}</p></div></div>`).join("")}</div>`
+    : "";
+  return `<div class="section">${head}<div class="card">${table}${upcoming}${ideas}
+    <p class="fx-note">Las aperturas de Brevo cuentan también las precargas de Apple Mail, así que están un poco infladas. Usalas para comparar mails entre sí, no como cifra exacta.</p></div></div>`;
+}
+
 function eventView(ev) {
   const seg = prefs.paid ? "paid" : "all";
   const f = ev.funnel[seg];
@@ -869,7 +913,7 @@ function eventView(ev) {
     ${tiles(f)}
     ${ev.diagnosis ? diagnosisView(ev) : ""}
     <div class="section"><div class="section-head"><h2>Funnel</h2><span class="small muted">${prefs.paid ? "Solo tráfico pago (con UTM)" : "Todas las fuentes"} · últimos ${data.range.days} días</span></div>
-      <div class="card">${funnelView(f)}</div></div>
+      <div class="card">${funnelView(f)}${adsStrip(ev)}</div></div>
     <div class="section"><div class="section-head"><h2>Por día</h2></div>
       <div class="grid g2">
         <div class="card"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
@@ -883,6 +927,7 @@ function eventView(ev) {
             <div class="body"><div class="name">${esc(v.label)}</div><p class="desc">${esc(v.desc || "")}</p>
             <div class="links"><a href="${ev.editorUrl}?node=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Abrir en Framer ↗</a><a href="${ev.publicUrl}" target="_blank" rel="noopener">Ver publicada ↗</a></div></div></div>`).join("")}</div></div>`}
     </div>
+    ${emailView(ev)}
     <div class="section"><div class="section-head"><h2>Fuentes de tráfico</h2><span class="small muted">Todas las fuentes · últimos ${data.range.days} días</span></div>
       <div class="card">${sourcesTable(ev.funnel.sources)}</div></div>`;
 }
