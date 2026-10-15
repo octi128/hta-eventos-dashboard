@@ -22,6 +22,7 @@ Funnels y tests A/B de las landings de eventos (Hollywood, Houston, Orlando), co
 |---|---|
 | `FRAMER_API_KEY` | API key del proyecto Eventos (Framer → Site Settings → General → API Keys) |
 | `FRAMER_PROJECT_ID` | `0wBFGvK3jgiViVD7lN3n` |
+| `BREVO_API_KEY` | (opcional) API key de Brevo con permiso de lectura de campañas. Sin esta variable, la sección de secuencias de email muestra cómo conectarla. |
 | `DASHBOARD_USERS` | Usuarios habilitados, en JSON: `{"mail@dominio.com": "salt:hash"}` |
 | `DASHBOARD_SECRET` | Clave para firmar las sesiones. Cambiarla cierra la sesión de todos |
 
@@ -32,3 +33,11 @@ Funnels y tests A/B de las landings de eventos (Hollywood, Houston, Orlando), co
 3. Redeployá. Un usuario borrado pierde el acceso aunque tenga una sesión abierta.
 
 Cada push a `main` se despliega solo en Vercel.
+
+## Secuencias de email (Brevo)
+
+Cada evento toma sus campañas por el nombre del mail (`emailMatch` en `lib/metrics.js`, p. ej. `HW G07 …` para Hollywood). Para cada mail muestra destinatarios, apertura, clicks y bajas, y genera ideas según reglas simples en `lib/brevo.js` (asunto, llamado a la acción, bajas, frecuencia, horario y mails programados después del evento).
+
+## Errores y mejoras de la landing
+
+Lo que el dashboard no puede medir (un texto roto, un botón difícil de encontrar) se agrega en `notes` de cada evento en `lib/metrics.js`. Aparece en el diagnóstico junto con lo que sí se detecta solo.
