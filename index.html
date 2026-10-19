@@ -433,6 +433,10 @@
   .banner.bad { border-left-color: var(--critical); background: color-mix(in srgb, var(--critical) 7%, var(--surface)); }
   .banner.info { border-left-color: var(--accent); background: var(--accent-wash); }
   .banner.mute { border-left-color: var(--axis); }
+  .countdown { height: 10px; background: var(--surface-2); border-radius: 6px; overflow: hidden; margin-top: 14px; }
+  .countdown i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+  .sec-sub { margin: 26px 0 14px; }
+  .sec-sub h3 { font-size: 17px; }
   .vcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
   .vcard { display: grid; grid-template-columns: 110px minmax(0, 1fr); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
   .vcard.win { border: 2px solid var(--good); }
@@ -596,11 +600,27 @@ function sampleNeeded(p1, p2) {
   return isFinite(n) ? Math.ceil(n) : null;
 }
 
+const COLLECT_MIN = 1000; // visitantes del test antes de leer resultados (cuenta regresiva)
+
 function analyzeTest(t, seg) {
   const variants = t.variants;
   const control = variants.find((v) => v.isControl) || variants[0];
   const others = variants.filter((v) => v !== control);
   const cr = (v) => rate(v[seg].submitters, v[seg].visitors);
+  const total = variants.reduce((sum, v) => sum + v[seg].visitors, 0);
+  if (total < COLLECT_MIN) {
+    const start = new Date(t.firstTs.replace(" ", "T") + "Z").getTime();
+    const days = Math.max(0.5, (Date.now() - start) / 864e5);
+    const perDay = total / days;
+    const left = COLLECT_MIN - total;
+    const eta = perDay > 0 ? Math.ceil(left / perDay) : null;
+    return {
+      kind: "wait", status: "collecting", left, total, eta,
+      title: "Cuenta regresiva para las nuevas métricas",
+      body: `Todavía se están juntando visitantes. Faltan ${fmt(left)} para leer resultados${eta ? `; al ritmo actual, unos ${eta} día${eta > 1 ? "s" : ""}` : ""}.`,
+      verdict: null,
+    };
+  }
   let best = null;
   for (const v of others) {
     const c = v.vsControl && v.vsControl[seg];
@@ -611,7 +631,7 @@ function analyzeTest(t, seg) {
     const split = variants.map((v) => `${v.label} ${pct(v.share, 0)}`).join(" / ");
     return {
       kind: "bad", status: "broken",
-      title: "Reparto roto: los resultados no son válidos",
+      title: "Tráfico desparejo: los resultados no son válidos",
       body: `El test está configurado para repartir parejo, pero el tráfico real es ${split}. Con esta diferencia, cualquier comparación de conversión está sesgada. Si recrear el test no lo corrige, el problema es de Framer: reportalo a su soporte o hacé el test desde Meta, con cada versión en su propia URL.`,
       verdict: null,
     };
@@ -921,7 +941,8 @@ function eventCards() {
     const t = e.tests[0];
     const a = t ? analyzeTest(t, seg) : null;
     const st = !a ? chip("mute", "Sin test A/B")
-      : a.status === "broken" ? chip("bad", "Reparto roto")
+      : a.status === "collecting" ? chip("info", `Faltan ${fmt(a.left)} visitantes`)
+      : a.status === "broken" ? chip("bad", "Tráfico desparejo")
       : a.status === "winner" ? chip("good", `Gana ${esc(a.leader.label)}`)
       : a.status === "leading" ? chip("info", `${esc(a.leader.label)} va adelante`)
       : chip("mute", "Sin datos suficientes");
@@ -960,7 +981,8 @@ function plainSummary(ev) {
   const t = ev.tests[0];
   if (t) {
     const a = analyzeTest(t, seg);
-    lines.push(a.status === "broken" ? `<b>El test A/B no sirve</b>: el tráfico no se reparte como estaba configurado.`
+    lines.push(a.status === "collecting" ? `El test A/B nuevo está en <b>cuenta regresiva</b>: faltan ${fmt(a.left)} visitantes para leer resultados.`
+      : a.status === "broken" ? `<b>El tráfico del test no está parejo</b>: los resultados no son confiables.`
       : a.status === "winner" ? `En el test A/B <b>${esc(a.leader.label)} gana</b>, con ${pct(a.conf, 0)} de confianza.`
       : a.status === "leading" ? `En el test A/B <b>${esc(a.leader.label)} va adelante</b>, pero todavía no es concluyente.`
       : `El test A/B todavía no tiene datos suficientes.`);
@@ -1024,6 +1046,36 @@ function variantDetailTable(t, seg) {
     }).join("")}</tbody></table></div>`;
 }
 
+function testBlock(ev, t, seg, quiet = false) {
+  const a = analyzeTest(t, seg);
+  const toneBanner = { broken: "bad", winner: "good", leading: "info", nodata: "mute", collecting: "info" }[a.status] || "mute";
+  const progress = a.status === "collecting"
+    ? `<div class="countdown"><i style="width:${Math.min(100, (a.total / COLLECT_MIN) * 100)}%"></i></div>` : "";
+  const banner = quiet ? "" : `<div class="banner ${toneBanner}"><strong>${a.title}</strong><p>${a.verdict || a.body}</p>${progress}</div>`;
+  const cards = `<div class="vcards">${t.variants.map((v) => {
+    const isWin = a.status === "winner" && a.leader === v;
+    const isLose = a.status === "winner" && a.leader !== v;
+    const badge = quiet ? chip("mute", "Resultado anterior")
+      : a.status === "broken" ? chip("bad", "Sin resultado válido")
+      : a.status === "collecting" ? chip("info", "En cuenta regresiva")
+      : isWin ? chip("good", "Ganadora")
+      : isLose ? chip("mute", "Pierde")
+      : a.status === "leading" ? (a.leader === v ? chip("info", "Va adelante") : chip("mute", "Va atrás"))
+      : chip("mute", "Sin datos");
+    return versionCard(ev, v, badge, seg, isWin);
+  }).join("")}</div>`;
+  const maxCr = Math.max(...t.variants.map((v) => rate(v[seg].submitters, v[seg].visitors) || 0), 0.0001);
+  const bars = `<div class="hbars">${t.variants.map((v) => {
+    const r = rate(v[seg].submitters, v[seg].visitors) || 0;
+    return `<div class="hbar"><div class="hbar-l"><span>${esc(v.label)}</span></div>
+      <div class="hbar-t"><i class="${v === a.leader && a.status !== "broken" ? "good" : "info"}" style="width:${(r / maxCr) * 100}%"></i></div>
+      <div class="hbar-v num">${pct(r)}</div></div>`;
+  }).join("")}</div>`;
+  return `${banner}${cards}
+    <div class="card-sub"><h3>Conversión a formulario, lado a lado</h3>${bars}</div>
+    <details class="more"><summary>Ver tabla completa del test</summary>${variantDetailTable(t, seg)}</details>`;
+}
+
 function abView(ev) {
   const seg = segOf();
   const [latest, ...older] = ev.tests;
@@ -1032,31 +1084,14 @@ function abView(ev) {
       <div class="vcards">${(ev.versions || []).map((v) => versionCard(ev, v, null, seg)).join("")}</div></div>`;
   }
   const a = analyzeTest(latest, seg);
-  const toneBanner = { broken: "bad", winner: "good", leading: "info", nodata: "mute" }[a.status] || "mute";
-  const banner = `<div class="banner ${toneBanner}"><strong>${a.title}</strong><p>${a.verdict || a.body}</p></div>`;
-  const cards = `<div class="vcards">${latest.variants.map((v) => {
-    const isWin = a.status === "winner" && a.leader === v;
-    const isLose = a.status === "winner" && a.leader !== v;
-    const badge = a.status === "broken" ? chip("bad", "Sin resultado válido")
-      : isWin ? chip("good", "Ganadora")
-      : isLose ? chip("mute", "Pierde")
-      : a.status === "leading" ? (a.leader === v ? chip("info", "Va adelante") : chip("mute", "Va atrás"))
-      : chip("mute", "Sin datos");
-    return versionCard(ev, v, badge, seg, isWin);
-  }).join("")}</div>`;
-  const maxCr = Math.max(...latest.variants.map((v) => rate(v[seg].submitters, v[seg].visitors) || 0), 0.0001);
-  const bars = `<div class="hbars">${latest.variants.map((v) => {
-    const r = rate(v[seg].submitters, v[seg].visitors) || 0;
-    return `<div class="hbar"><div class="hbar-l"><span>${esc(v.label)}</span></div>
-      <div class="hbar-t"><i class="${v === a.leader && a.status !== "broken" ? "good" : "info"}" style="width:${(r / maxCr) * 100}%"></i></div>
-      <div class="hbar-v num">${pct(r)}</div></div>`;
-  }).join("")}</div>`;
-  const older_ = older.length ? `<details class="more"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary>
+  const olderBlock = older.length ? `<details class="more"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary>
     ${older.map((t) => `<p class="sublabel">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short" })} · ${fmt(t.totalVisitors)} visitantes</p>${variantDetailTable(t, seg)}`).join("")}</details>` : "";
-  return `${banner}${cards}
-    <div class="card-sub"><h3>Conversión a formulario, lado a lado</h3>${bars}</div>
-    <details class="more"><summary>Ver tabla completa del test</summary>${variantDetailTable(latest, seg)}</details>
-    ${older_}`;
+  if (a.status !== "collecting") return `${testBlock(ev, latest, seg)}${olderBlock}`;
+  // Mientras se juntan datos del test nuevo, mostramos el último test que ya tiene resultados.
+  const prev = older.find((t) => analyzeTest(t, seg).status !== "collecting");
+  return `${testBlock(ev, latest, seg)}
+    ${prev ? `<div class="sec-sub"><h3>Último test con resultados</h3><p class="small muted">${dateFmt(prev.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(prev.lastTs, { day: "numeric", month: "short" })} · ${fmt(prev.totalVisitors)} visitantes</p></div>${testBlock(ev, prev, seg, true)}` : ""}
+    ${olderBlock}`;
 }
 
 function versionCard(ev, v, badge, seg, isWin = false) {
@@ -1201,7 +1236,7 @@ function eventView(ev) {
     <div class="card glossary"><h3>Glosario</h3><dl>
       <dt>Conversión</dt><dd>De las personas de un paso, cuántas pasan al siguiente.</dd>
       <dt>Test A/B</dt><dd>Dos versiones de la landing. Gana la que convierte más con confianza suficiente (95%).</dd>
-      <dt>Reparto roto</dt><dd>El tráfico no se divide como lo configuraste, así que la comparación no sirve.</dd>
+      <dt>Tráfico desparejo</dt><dd>El tráfico no se divide como lo configuraste, así que la comparación no sirve.</dd>
       <dt>Apertura / Clics</dt><dd>Qué porcentaje de los destinatarios abrió el mail o hizo clic en un enlace.</dd>
       <dt>Bajas</dt><dd>Personas que pidieron dejar de recibir la secuencia.</dd>
       <dt>Tráfico pago</dt><dd>Visitas que llegan con parámetros de Meta (Facebook e Instagram).</dd>
@@ -1266,6 +1301,8 @@ let rz;
 addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { const ev = data && (data.events.find((e) => e.key === prefs.event) || data.events[0]); if (ev) drawCharts(ev); }, 150); });
 
 load();
+// Actualiza solo: el servidor guarda la respuesta 5 min, así que pedirla cada 5 min trae lo último sin recargar.
+setInterval(() => { if (!loading && store.get(TOKEN_STORE)) load(); }, 5 * 60 * 1000);
 </script>
 </body>
 </html>
