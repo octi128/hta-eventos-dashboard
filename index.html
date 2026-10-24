@@ -1211,6 +1211,58 @@ function adsTable(d) {
 }
 
 /* ---------- Vista de un evento ---------- */
+/* ---------- Experimento propio (50/50, un solo link por anuncio) ---------- */
+function expExtras(x) {
+  const byArm = (list, key) => {
+    const m = new Map();
+    for (const r of list || []) {
+      const k = r[key];
+      if (!m.has(k)) m.set(k, { k, A: 0, B: 0 });
+      m.get(k)[r.arm] = Number(r.people) || 0;
+    }
+    return [...m.values()].sort((a, b) => b.A + b.B - (a.A + a.B));
+  };
+  const pages = byArm(x.paths, "path").filter((r) => r.k !== x.landing).slice(0, 10);
+  const clicks = byArm(x.clicks, "label").slice(0, 10);
+  const table = (title, head, rows) => rows.length ? `<p class="sublabel">${title}</p><div class="tablewrap"><table><thead><tr><th>${head}</th><th>Personas A</th><th>Personas B</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.k)}</td><td>${fmt(r.A)}</td><td>${fmt(r.B)}</td></tr>`).join("")}</tbody></table></div>` : "";
+  return table("Páginas que visita cada versión después de la landing (gracias, confirmación, VIP…)", "Página", pages)
+    + table("Botones y enlaces que más se tocan en la landing", "Botón o enlace", clicks);
+}
+
+function expView(x) {
+  const [A, B] = x.arms;
+  if (!A || !B) return "";
+  const c = x.comparison;
+  const split = x.split;
+  const splitTxt = !split ? "" : split.broken
+    ? `<p class="warn-txt">⚠ El reparto no es 50/50 (${pct(A.share, 0)} / ${pct(B.share, 0)}). Revisar el redirect.</p>`
+    : `<p class="small muted">Reparto ${pct(A.share, 0)} / ${pct(B.share, 0)}: parejo.</p>`;
+  let banner;
+  if (x.total < COLLECT_MIN) banner = `<div class="banner info"><strong>Cuenta regresiva para resultados</strong><p>Faltan ${fmt(COLLECT_MIN - x.total)} visitantes para leer resultados.</p><div class="countdown"><i style="width:${Math.min(100, (x.total / COLLECT_MIN) * 100)}%"></i></div></div>`;
+  else if (c && c.confidence >= 0.95) {
+    const lead = (c.lift ?? 0) >= 0 ? B : A;
+    banner = `<div class="banner good"><strong>${lead.label} gana</strong><p>Convierte ${pct(lead.rate)} contra ${pct((lead === B ? A : B).rate)}, con ${pct(c.confidence)} de confianza.</p></div>`;
+  } else banner = `<div class="banner info"><strong>Todavía sin ganador</strong><p>${c ? `Confianza actual: ${pct(c.confidence)} (hace falta 95%).` : "Faltan visitas en las dos versiones."}</p></div>`;
+  const armCards = x.arms.map((a) => `<div class="vcard" style="grid-template-columns:1fr"><div class="vbody">
+      <div class="vtop"><strong>${esc(a.label)} <span class="muted small">(${a.arm})</span></strong></div>
+      <div class="vbig num">${pct(a.rate)}<span>llenan el formulario</span></div>
+      <div class="vgrid">
+        <div><b class="num">${fmt(a.visitors)}</b><span>visitantes</span></div>
+        <div><b class="num">${fmt(a.submitters)}</b><span>formularios</span></div>
+        <div><b class="num">${fmt(a.confirmed)}</b><span>confirmaciones</span></div>
+      </div>
+      <p class="small muted">Recibe el ${pct(a.share, 0)} del tráfico${a.clickers != null ? ` · ${fmt(a.clickers)} tocaron un botón` : ""}</p></div></div>`).join("");
+  const adRows = x.ads.map((a) => {
+    const best = a.ra != null && a.rb != null ? (a.rb > a.ra ? "B" : a.ra > a.rb ? "A" : "") : "";
+    return `<tr><td><span class="mono">${esc(a.ad)}</span></td><td>${fmt(a.A.visitors)}</td><td>${pct(a.ra)}</td><td>${fmt(a.B.visitors)}</td><td>${pct(a.rb)}</td><td>${best ? chip(best === "B" ? "good" : "info", `Mejor: ${best}`) : chip("mute", "Empate")}</td></tr>`;
+  }).join("");
+  return `<div class="card big">${banner}${splitTxt}<div class="vcards" style="margin-top:14px">${armCards}</div>
+    <p class="sublabel">Anuncio por anuncio: qué versión convierte más</p>
+    ${x.ads.length ? `<div class="tablewrap"><table><thead><tr><th>Anuncio</th><th>Visitantes A</th><th>Formulario A</th><th>Visitantes B</th><th>Formulario B</th><th>Mejor</th></tr></thead><tbody>${adRows}</tbody></table></div>` : `<p class="muted">Todavía no hay anuncios con visitas medidas.</p>`}
+    ${expExtras(x)}
+    <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings)." : "Datos de Framer, hasta que se conecte la medición propia."} Visitas que llegan por /go/${esc(x.key)}; cada persona queda en una versión y siempre ve la misma.</p></div>`;
+}
+
 function eventView(ev) {
   const seg = segOf();
   const f = ev.funnel[seg];
@@ -1226,6 +1278,7 @@ function eventView(ev) {
       abView(ev))}
     ${emailView(ev)}
     ${ev.diagnosis ? diagnosisView(ev) : ""}
+    ${ev.experiment ? section("3b", "Experimento propio 50/50", "Un solo link por anuncio: la mitad de la gente ve A y la otra mitad B. Medido por nosotros, sin el A/B de Framer.", expView(ev.experiment)) : ""}
     ${section(6, "Visitantes y conversión por día", "Cada columna es un día. Sirve para ver si algo subió o bajó después de un cambio.",
       `<div class="grid g2">
         <div class="card big"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
