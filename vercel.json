@@ -1,3 +1,15 @@
 {
-  "functions": { "api/metrics.js": { "maxDuration": 60 } }
+  "functions": {
+    "api/metrics.js": { "maxDuration": 60 },
+    "api/t.js": { "maxDuration": 10 }
+  },
+  "rewrites": [
+    { "source": "/go/:exp", "destination": "/api/go/:exp" }
+  ],
+  "headers": [
+    { "source": "/t.js", "headers": [
+      { "key": "Cache-Control", "value": "public, max-age=300" },
+      { "key": "Content-Type", "value": "application/javascript; charset=utf-8" }
+    ] }
+  ]
 }

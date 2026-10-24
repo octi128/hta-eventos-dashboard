@@ -41,3 +41,12 @@ Cada evento toma sus campañas por el nombre del mail (`emailMatch` en `lib/metr
 ## Errores y mejoras de la landing
 
 Lo que el dashboard no puede medir (un texto roto, un botón difícil de encontrar) se agrega en `notes` de cada evento en `lib/metrics.js`. Aparece en el diagnóstico junto con lo que sí se detecta solo.
+
+## A/B testing y medición propios
+
+No dependemos del A/B de Framer (reparte mal) ni de su analítica para los experimentos.
+
+- **Link único por anuncio:** `https://hta-eventos-dashboard.vercel.app/go/<experimento>` (por ejemplo `/go/hollywood`). Reparte 50/50, recuerda la versión 30 días con una cookie y pasa los `utm_*` de Meta a la landing con `hta_e` y `hta_v`. Los experimentos se definen en `lib/experiments.js`.
+- **Script de medición:** `t.js` registra visitas (también los cambios de página sin recarga), clics en botones y enlaces, y envíos de formulario. No guarda lo que la persona escribe. Se instala en Framer con el código de `lib/snippet.js` (custom code, al final del `<head>`).
+- **Receptor:** `/api/t` guarda los eventos en Postgres (tabla `hta_events`, se crea sola). Solo acepta envíos desde dominios de `highwaytradingacademy.com`.
+- **Base de datos:** Vercel → Storage → Neon (Postgres), conectada a este proyecto. Carga `DATABASE_URL` sola. Sin base, el dashboard sigue mostrando los datos de Framer.

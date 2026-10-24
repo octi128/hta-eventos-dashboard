@@ -21,6 +21,7 @@ export default function handler(req, res) {
   }
   params.set("framer_variant", exp.arms[arm].variant);
   params.set("hta_v", arm);
+  params.set("hta_e", name);
   res.setHeader("Location", `${SITE}${exp.landing}?${params.toString()}`);
   res.status(302).end();
 }

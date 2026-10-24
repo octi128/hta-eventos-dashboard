@@ -1212,6 +1212,23 @@ function adsTable(d) {
 
 /* ---------- Vista de un evento ---------- */
 /* ---------- Experimento propio (50/50, un solo link por anuncio) ---------- */
+function expExtras(x) {
+  const byArm = (list, key) => {
+    const m = new Map();
+    for (const r of list || []) {
+      const k = r[key];
+      if (!m.has(k)) m.set(k, { k, A: 0, B: 0 });
+      m.get(k)[r.arm] = Number(r.people) || 0;
+    }
+    return [...m.values()].sort((a, b) => b.A + b.B - (a.A + a.B));
+  };
+  const pages = byArm(x.paths, "path").filter((r) => r.k !== x.landing).slice(0, 10);
+  const clicks = byArm(x.clicks, "label").slice(0, 10);
+  const table = (title, head, rows) => rows.length ? `<p class="sublabel">${title}</p><div class="tablewrap"><table><thead><tr><th>${head}</th><th>Personas A</th><th>Personas B</th></tr></thead><tbody>${rows.map((r) => `<tr><td>${esc(r.k)}</td><td>${fmt(r.A)}</td><td>${fmt(r.B)}</td></tr>`).join("")}</tbody></table></div>` : "";
+  return table("Páginas que visita cada versión después de la landing (gracias, confirmación, VIP…)", "Página", pages)
+    + table("Botones y enlaces que más se tocan en la landing", "Botón o enlace", clicks);
+}
+
 function expView(x) {
   const [A, B] = x.arms;
   if (!A || !B) return "";
@@ -1234,7 +1251,7 @@ function expView(x) {
         <div><b class="num">${fmt(a.submitters)}</b><span>formularios</span></div>
         <div><b class="num">${fmt(a.confirmed)}</b><span>confirmaciones</span></div>
       </div>
-      <p class="small muted">Recibe el ${pct(a.share, 0)} del tráfico</p></div></div>`).join("");
+      <p class="small muted">Recibe el ${pct(a.share, 0)} del tráfico${a.clickers != null ? ` · ${fmt(a.clickers)} tocaron un botón` : ""}</p></div></div>`).join("");
   const adRows = x.ads.map((a) => {
     const best = a.ra != null && a.rb != null ? (a.rb > a.ra ? "B" : a.ra > a.rb ? "A" : "") : "";
     return `<tr><td><span class="mono">${esc(a.ad)}</span></td><td>${fmt(a.A.visitors)}</td><td>${pct(a.ra)}</td><td>${fmt(a.B.visitors)}</td><td>${pct(a.rb)}</td><td>${best ? chip(best === "B" ? "good" : "info", `Mejor: ${best}`) : chip("mute", "Empate")}</td></tr>`;
@@ -1242,7 +1259,8 @@ function expView(x) {
   return `<div class="card big">${banner}${splitTxt}<div class="vcards" style="margin-top:14px">${armCards}</div>
     <p class="sublabel">Anuncio por anuncio: qué versión convierte más</p>
     ${x.ads.length ? `<div class="tablewrap"><table><thead><tr><th>Anuncio</th><th>Visitantes A</th><th>Formulario A</th><th>Visitantes B</th><th>Formulario B</th><th>Mejor</th></tr></thead><tbody>${adRows}</tbody></table></div>` : `<p class="muted">Todavía no hay anuncios con visitas medidas.</p>`}
-    <p class="note">Medido con las visitas que llegan por /go/${esc(x.key)}. Cada persona queda en un brazo y siempre ve el mismo.</p></div>`;
+    ${expExtras(x)}
+    <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings)." : "Datos de Framer, hasta que se conecte la medición propia."} Visitas que llegan por /go/${esc(x.key)}; cada persona queda en una versión y siempre ve la misma.</p></div>`;
 }
 
 function eventView(ev) {

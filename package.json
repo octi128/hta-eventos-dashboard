@@ -2,8 +2,11 @@
   "name": "hta-eventos-dashboard",
   "private": true,
   "type": "module",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
     "framer-api": "5.1.0"
   }
 }
