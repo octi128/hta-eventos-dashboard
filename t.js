@@ -35,6 +35,17 @@
     if (e && (v === "A" || v === "B")) lsSet("hta_exp", JSON.stringify({ e: e.slice(0, 40), v: v, t: Date.now() }));
   }
 
+  // Versión que sirvió Framer en esta carga (routeId del HTML). Solo vale para la página con la que se entró.
+  var entryPath = location.pathname;
+  function pageId() {
+    if (location.pathname !== entryPath) return null;
+    try {
+      var el = document.getElementById("main");
+      var j = el && JSON.parse(el.getAttribute("data-framer-hydrate-v2") || "{}");
+      return j && typeof j.routeId === "string" ? j.routeId.slice(0, 20) : null;
+    } catch (e) { return null; }
+  }
+
   function currentPath() { try { return decodeURIComponent(location.pathname); } catch (e) { return location.pathname; } }
   function device() { return /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? "mobile" : "desktop"; }
 
@@ -43,7 +54,7 @@
     var ev = {
       vid: vid, type: type, path: currentPath(),
       search: location.search.slice(0, 1000), ref: (document.referrer || "").slice(0, 300),
-      device: device(), src: readJSON("hta_src") || {},
+      device: device(), src: readJSON("hta_src") || {}, page_id: pageId(),
     };
     if (x && Date.now() - x.t < 30 * DAY) { ev.exp = x.e; ev.arm = x.v; }
     for (var k in extra) ev[k] = extra[k];
