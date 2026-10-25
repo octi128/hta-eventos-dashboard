@@ -17,7 +17,8 @@ export default async function handler(req, res) {
   if (hit && !fresh && Date.now() - hit.at < CACHE_MS) return res.status(200).json({ ...hit.data, cached: true });
 
   try {
-    const data = await getMetrics({ projectId: FRAMER_PROJECT_ID, apiKey: FRAMER_API_KEY, days, brevoKey: process.env.BREVO_API_KEY });
+    const data = await getMetrics({ projectId: FRAMER_PROJECT_ID, apiKey: FRAMER_API_KEY, days, brevoKey: process.env.BREVO_API_KEY,
+      metaToken: process.env.META_ACCESS_TOKEN, metaVersion: process.env.META_API_VERSION });
     cache.set(days, { at: Date.now(), data });
     return res.status(200).json(data);
   } catch (err) {
