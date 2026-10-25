@@ -978,6 +978,7 @@ function plainSummary(ev) {
   const flaggedCamps = (ev.diagnosis?.campaigns || []).filter((c) => c.flagged).length;
   if (flaggedCamps) lines.push(`<b>${flaggedCamps}</b> campaña${flaggedCamps > 1 ? "s traen" : " trae"} tráfico que casi no interactúa: revisala en Ads Manager.`);
 
+  if (ev.adVariants && ev.adVariants.forcedShare >= 0.05) lines.push(`<b>${pct(ev.adVariants.forcedShare, 0)} del tráfico llega con un link que fuerza una versión</b>, así que no entra al test. Hay que sacar <span class="mono">framer_variant</span> del link en Meta.`);
   const t = ev.tests[0];
   if (t) {
     const a = analyzeTest(t, seg);
@@ -1046,6 +1047,32 @@ function variantDetailTable(t, seg) {
     }).join("")}</tbody></table></div>`;
 }
 
+/* ---------- Links que fuerzan una versión y anuncio por versión (datos de Framer) ---------- */
+function forcedBanner(ev) {
+  const a = ev.adVariants;
+  if (!a || !a.forced || a.forcedShare < 0.05) return "";
+  const page = a.pages.slice().sort((x, y) => y.forced - x.forced)[0];
+  const forcingAds = a.ads.filter((x) => x.forcedVisitors > 0).slice(0, 5).map((x) => esc(shortId(x.ad))).join(", ");
+  return `<div class="banner bad"><strong>${pct(a.forcedShare, 0)} del tráfico no entra al test: el link del anuncio fuerza la versión ${esc(page.label)}</strong>
+    <p>${fmt(a.forced)} de ${fmt(a.total)} visitantes llegaron con <span class="mono">framer_variant=${esc(page.pageId)}</span> en la URL. Esos no pasan por el reparto 50/50 y no cuentan en el test. Para que el test reciba todo el tráfico, sacá ese parámetro del link en Meta${forcingAds ? ` (anuncios ${forcingAds}…)` : ""}.</p></div>`;
+}
+
+function adVariantTable(ev) {
+  const a = ev.adVariants;
+  if (!a || a.pages.length < 2 || !a.ads.length) return "";
+  const [p1, p2] = a.pages;
+  const cell = (x) => x ? `${fmt(x.visitors)} · ${pct(rate(x.submitters, x.visitors))}` : "—";
+  const rows = a.ads.map((x) => {
+    const A = x.byPage[p1.pageId], B = x.byPage[p2.pageId];
+    const ra = A ? rate(A.submitters, A.visitors) : null, rb = B ? rate(B.submitters, B.visitors) : null;
+    const tag = x.forcedVisitors > x.total * 0.5 ? chip("bad", "Link fija versión") : (A && B && A.visitors >= 30 && B.visitors >= 30) ? (rb > ra ? chip("good", `Mejor: ${esc(p2.label)}`) : ra > rb ? chip("info", `Mejor: ${esc(p1.label)}`) : chip("mute", "Empate")) : chip("mute", "Pocos datos");
+    return `<tr><td><span class="mono">${esc(shortId(x.ad))}</span></td><td>${cell(A)}</td><td>${cell(B)}</td><td>${tag}</td></tr>`;
+  }).join("");
+  return `<div class="card-sub"><h3>Qué anuncio lleva a cada versión</h3>
+    <p class="small muted">Visitantes · % que llena el formulario, por anuncio y versión. Datos de Framer, últimos ${data.range.days} días.</p>
+    <div class="tablewrap"><table><thead><tr><th>Anuncio</th><th>${esc(p1.label)}</th><th>${esc(p2.label)}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+}
+
 function testBlock(ev, t, seg, quiet = false) {
   const a = analyzeTest(t, seg);
   const toneBanner = { broken: "bad", winner: "good", leading: "info", nodata: "mute", collecting: "info" }[a.status] || "mute";
@@ -1086,10 +1113,10 @@ function abView(ev) {
   const a = analyzeTest(latest, seg);
   const olderBlock = older.length ? `<details class="more"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary>
     ${older.map((t) => `<p class="sublabel">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short" })} · ${fmt(t.totalVisitors)} visitantes</p>${variantDetailTable(t, seg)}`).join("")}</details>` : "";
-  if (a.status !== "collecting") return `${testBlock(ev, latest, seg)}${olderBlock}`;
+  if (a.status !== "collecting") return `${forcedBanner(ev)}${testBlock(ev, latest, seg)}${adVariantTable(ev)}${olderBlock}`;
   // Mientras se juntan datos del test nuevo, mostramos el último test que ya tiene resultados.
   const prev = older.find((t) => analyzeTest(t, seg).status !== "collecting");
-  return `${testBlock(ev, latest, seg)}
+  return `${forcedBanner(ev)}${testBlock(ev, latest, seg)}${adVariantTable(ev)}
     ${prev ? `<div class="sec-sub"><h3>Último test con resultados</h3><p class="small muted">${dateFmt(prev.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(prev.lastTs, { day: "numeric", month: "short" })} · ${fmt(prev.totalVisitors)} visitantes</p></div>${testBlock(ev, prev, seg, true)}` : ""}
     ${olderBlock}`;
 }
@@ -1235,7 +1262,7 @@ function expView(x) {
   const c = x.comparison;
   const split = x.split;
   const splitTxt = !split ? "" : split.broken
-    ? `<p class="warn-txt">⚠ El reparto no es 50/50 (${pct(A.share, 0)} / ${pct(B.share, 0)}). Revisar el redirect.</p>`
+    ? `<p class="warn-txt">⚠ El reparto no es 50/50 (${pct(A.share, 0)} / ${pct(B.share, 0)}). Revisar los links de los anuncios.</p>`
     : `<p class="small muted">Reparto ${pct(A.share, 0)} / ${pct(B.share, 0)}: parejo.</p>`;
   let banner;
   if (x.total < COLLECT_MIN) banner = `<div class="banner info"><strong>Cuenta regresiva para resultados</strong><p>Faltan ${fmt(COLLECT_MIN - x.total)} visitantes para leer resultados.</p><div class="countdown"><i style="width:${Math.min(100, (x.total / COLLECT_MIN) * 100)}%"></i></div></div>`;
@@ -1260,7 +1287,7 @@ function expView(x) {
     <p class="sublabel">Anuncio por anuncio: qué versión convierte más</p>
     ${x.ads.length ? `<div class="tablewrap"><table><thead><tr><th>Anuncio</th><th>Visitantes A</th><th>Formulario A</th><th>Visitantes B</th><th>Formulario B</th><th>Mejor</th></tr></thead><tbody>${adRows}</tbody></table></div>` : `<p class="muted">Todavía no hay anuncios con visitas medidas.</p>`}
     ${expExtras(x)}
-    <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings)." : "Datos de Framer, hasta que se conecte la medición propia."} Visitas que llegan por /go/${esc(x.key)}; cada persona queda en una versión y siempre ve la misma.</p></div>`;
+    <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings), desde el 24 de octubre." : "Datos de Framer, hasta que se conecte la medición propia."} Las visitas con un link que fuerza la versión no cuentan.</p></div>`;
 }
 
 function eventView(ev) {
@@ -1278,7 +1305,7 @@ function eventView(ev) {
       abView(ev))}
     ${emailView(ev)}
     ${ev.diagnosis ? diagnosisView(ev) : ""}
-    ${ev.experiment ? section("3b", "Experimento propio 50/50", "Un solo link por anuncio: la mitad de la gente ve A y la otra mitad B. Medido por nosotros, sin el A/B de Framer.", expView(ev.experiment)) : ""}
+    ${ev.experiment ? section("3b", "A/B medido por Highway", "Nuestra propia medición: qué versión vio cada persona, qué tocó y si se anotó. Cuenta solo a quienes pasaron por el reparto 50/50.", expView(ev.experiment)) : ""}
     ${section(6, "Visitantes y conversión por día", "Cada columna es un día. Sirve para ver si algo subió o bajó después de un cambio.",
       `<div class="grid g2">
         <div class="card big"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
