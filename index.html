@@ -584,6 +584,8 @@
   .hbar-name { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; }
   .hbar-name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .hbar-name .chip { flex: none; }
+  details.more.inner { margin-top: 10px; background: var(--surface-2); border: 0; }
+  details.more.inner summary { font-size: 14px; }
   .hint { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); padding: 12px 14px; border: 1px dashed var(--axis); border-radius: 12px; margin: 4px 0 6px; }
   .linkcell { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
   .linkcell mark { background: color-mix(in srgb, var(--critical) 18%, transparent); color: var(--critical-ink); border-radius: 3px; padding: 0 2px; }
@@ -1384,7 +1386,7 @@ const trunc = (s, n) => s.length > n ? s.slice(0, Math.max(1, n - 1)) + "…" : 
 // Período de los datos por anuncio: desde que arrancó el test actual, o el período elegido.
 const adWindow = (ev) => {
   const f = ev.adVariants?.from;
-  return f && new Date(f) > new Date(data.range.from) ? `Desde el ${dateFmt(f, { day: "numeric", month: "short" })}` : `Últimos ${data.range.days} días`;
+  return f && f.slice(0, 10) !== data.range.from.slice(0, 10) ? `Desde el ${dateFmt(f, { day: "numeric", month: "short" })}` : `Últimos ${data.range.days} días`;
 };
 
 // Color fijo por versión: la original siempre azul, la primera variante naranja.
@@ -1629,39 +1631,51 @@ function adRowsTable(ev) {
     ? `<div class="hint">${chip("info", "Próximo paso")} Conectando Meta, acá aparecen el nombre y la miniatura de cada anuncio (y en la pestaña Anuncios, el gasto y el costo por formulario).</div>`
     : data.meta.error ? `<p class="small err">Meta: ${esc(data.meta.error)}</p>` : "";
 
+  // Listas largas: se ven los anuncios principales y el resto queda plegado.
+  const table = (head, rows) => `<div class="tablewrap"><table class="adtab"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  const more = (label, html) => html ? `<details class="more inner"><summary>${label}</summary>${html}</details>` : "";
+  const cut = (list, n, min = 0) => { const main = list.filter((a, i) => i < n && a.total >= min); return [main, list.slice(main.length)]; };
   if (pages.length < 2) {
-    const rows = av.ads.slice(0, 25).map((a) => {
+    const row = (a) => {
       const st = statSum(a.byPage, "visitors") ? Object.values(a.byPage).reduce((acc, s) => ({ visitors: acc.visitors + s.visitors, submitters: acc.submitters + s.submitters, confirmed: acc.confirmed + s.confirmed }), { visitors: 0, submitters: 0, confirmed: 0 }) : null;
       return `<tr><td>${adCell(a)}</td><td class="num">${fmt(a.total)}</td><td>${cv(st)}</td><td class="num">${fmt(st?.confirmed)}</td></tr>`;
-    }).join("");
+    };
+    const head = `<th>Anuncio</th><th>Visitantes</th><th>Formulario</th><th>Confirmaciones</th>`;
+    const [main, rest] = cut(av.ads, 12, 20);
     return `<div class="card big"><div class="card-head"><h3>Anuncio por anuncio</h3><span class="small muted">${adWindow(ev)} · Framer</span></div>${hint}
-      <div class="tablewrap"><table class="adtab"><thead><tr><th>Anuncio</th><th>Visitantes</th><th>Formulario</th><th>Confirmaciones</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+      ${table(head, main.map(row).join(""))}
+      ${more(`Ver ${fmt(rest.length)} anuncio${rest.length === 1 ? "" : "s"} más (menos visitas)`, rest.length ? table(head, rest.map(row).join("")) : "")}</div>`;
   }
 
   const inTest = av.ads.filter((a) => !isForcedAd(a));
   const forced = av.ads.filter(isForcedAd);
-  const testRows = inTest.slice(0, 25).map((a) => `<tr><td>${adCell(a)}</td><td class="num">${fmt(a.total)}</td><td>${split(a)}</td>
-    ${pages.slice(0, 2).map((p) => `<td>${cv(a.test?.[p.pageId])}</td>`).join("")}<td>${verdict(a)}</td></tr>`).join("");
+  const testRow = (a) => `<tr><td>${adCell(a)}</td><td class="num">${fmt(a.total)}</td><td>${split(a)}</td>
+    ${pages.slice(0, 2).map((p) => `<td>${cv(a.test?.[p.pageId])}</td>`).join("")}<td>${verdict(a)}</td></tr>`;
+  const testHead = `<th>Anuncio</th><th>Visitantes</th><th>Reparto</th>${pages.slice(0, 2).map((p) => `<th><span class="vchip"><i class="dot" style="--c:${pageColor(ev, p.pageId)}"></i>${esc(p.label)}</span></th>`).join("")}<th>Resultado</th>`;
+  const [testMain, testRest] = cut(inTest, 10, 20);
   const forcedVisitors = forced.reduce((t, a) => t + a.forcedVisitors, 0);
-  const forcedRows = forced.map((a) => {
+  const forcedRow = (a) => {
     const top = pages.slice().sort((x, y) => (a.forcedBy?.[y.pageId]?.visitors || 0) - (a.forcedBy?.[x.pageId]?.visitors || 0))[0];
     const m = metaOf(a.ad);
     const shortLink = (u) => { try { const x = new URL(u); return x.pathname + x.search; } catch { return u; } };
     const link = m?.link ? `<td class="linkcell mono" title="${esc(m.link)}">${esc(shortLink(m.link)).replace(/(framer_variant=[A-Za-z0-9_-]+)/, "<mark>$1</mark>")}</td>` : metaOn ? `<td class="muted">—</td>` : "";
     const allSt = Object.values(a.byPage).reduce((acc, s) => ({ visitors: acc.visitors + s.visitors, submitters: acc.submitters + s.submitters }), { visitors: 0, submitters: 0 });
     return `<tr><td>${adCell(a)}</td><td class="num">${fmt(a.total)}</td><td><span class="vchip"><i class="dot" style="--c:${pageColor(ev, top.pageId)}"></i>${esc(top.label)}</span></td><td>${cv(allSt)}</td>${link}</tr>`;
-  }).join("");
+  };
+  const forcedHead = `<th>Anuncio</th><th>Visitantes</th><th>Siempre ve</th><th>Formulario</th>${metaOn ? "<th>Link en Meta</th>" : ""}`;
+  const [forcedMain, forcedRest] = cut(forced, 10);
   const forcedBlock = forced.length ? `<details class="more" ${av.forcedShare >= 0.05 ? "open" : ""}>
       <summary>Anuncios con link forzado (${fmt(forced.length)}) · ${fmt(forcedVisitors)} visitantes que no entran al test</summary>
       <p class="small ink-2">Estos anuncios tienen <span class="mono">framer_variant</span> en el link: todos ven la misma versión. Hay que sacarlo en Meta para que entren al test.</p>
-      <div class="tablewrap"><table class="adtab"><thead><tr><th>Anuncio</th><th>Visitantes</th><th>Siempre ve</th><th>Formulario</th>${metaOn ? "<th>Link en Meta</th>" : ""}</tr></thead><tbody>${forcedRows}</tbody></table></div>
+      ${table(forcedHead, forcedMain.map(forcedRow).join(""))}
+      ${more(`Ver los otros ${fmt(forcedRest.length)} (${fmt(forcedRest.reduce((t, a) => t + a.forcedVisitors, 0))} visitantes)`, forcedRest.length ? table(forcedHead, forcedRest.map(forcedRow).join("")) : "")}
     </details>` : "";
   return `<div class="card big">
     <div class="card-head"><h3>Anuncio por anuncio</h3><span class="small muted">${adWindow(ev)} · Framer</span></div>
     ${hint}
     <p class="sublabel">En el test: mandan gente a las dos versiones (${fmt(inTest.length)})</p>
-    ${inTest.length ? `<div class="tablewrap"><table class="adtab"><thead><tr><th>Anuncio</th><th>Visitantes</th><th>Reparto</th>${pages.slice(0, 2).map((p) => `<th><span class="vchip"><i class="dot" style="--c:${pageColor(ev, p.pageId)}"></i>${esc(p.label)}</span></th>`).join("")}<th>Resultado</th></tr></thead><tbody>${testRows}</tbody></table></div>`
-      : `<p class="muted">Ningún anuncio está mandando gente a las dos versiones.</p>`}
+    ${inTest.length ? table(testHead, testMain.map(testRow).join("")) : `<p class="muted">Ningún anuncio está mandando gente a las dos versiones.</p>`}
+    ${more(`Ver ${fmt(testRest.length)} anuncio${testRest.length === 1 ? "" : "s"} más con pocas visitas`, testRest.length ? table(testHead, testRest.map(testRow).join("")) : "")}
     ${forcedBlock}
     <p class="note">"Mejor" = 95% de confianza; "Tendencia" = entre 80% y 95%. Solo se comparan las visitas que entraron al test.</p>
   </div>`;
