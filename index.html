@@ -1066,7 +1066,7 @@ function adVariantTable(ev) {
     const A = x.byPage[p1.pageId], B = x.byPage[p2.pageId];
     const ra = A ? rate(A.submitters, A.visitors) : null, rb = B ? rate(B.submitters, B.visitors) : null;
     const tag = x.forcedVisitors > x.total * 0.5 ? chip("bad", "Link fija versión") : (A && B && A.visitors >= 30 && B.visitors >= 30) ? (rb > ra ? chip("good", `Mejor: ${esc(p2.label)}`) : ra > rb ? chip("info", `Mejor: ${esc(p1.label)}`) : chip("mute", "Empate")) : chip("mute", "Pocos datos");
-    return `<tr><td><span class="mono">${esc(shortId(x.ad))}</span></td><td>${cell(A)}</td><td>${cell(B)}</td><td>${tag}</td></tr>`;
+    return `<tr><td><span class="mono">${esc(x.ad.startsWith("(") ? x.ad : shortId(x.ad))}</span></td><td>${cell(A)}</td><td>${cell(B)}</td><td>${tag}</td></tr>`;
   }).join("");
   return `<div class="card-sub"><h3>Qué anuncio lleva a cada versión</h3>
     <p class="small muted">Visitantes · % que llena el formulario, por anuncio y versión. Datos de Framer, últimos ${data.range.days} días.</p>
