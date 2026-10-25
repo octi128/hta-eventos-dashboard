@@ -823,7 +823,7 @@ const DEVICE = { mobile: "Celular", desktop: "Computadora", tablet: "Tablet" };
 const BROWSER = { safari: "Safari", chrome: "Chrome", other: "otro navegador / app", edge: "Edge", firefox: "Firefox" };
 const segLabel = (s) => `${DEVICE[s.device] || s.device} · ${BROWSER[s.browser] || s.browser}`;
 const SOURCE = { fb: "Facebook", ig: "Instagram", an: "Audience Network", th: "Threads", msg: "Messenger", "": "sin UTM" };
-const shortId = (id) => id ? "…" + id.slice(-6) : "(sin campaña)";
+const shortId = (id) => id ? "…" + id.slice(-8) : "(sin campaña)";
 const crate = (g) => rate(g.submitters, g.visitors);
 
 function linkKind(href) {
@@ -1065,11 +1065,17 @@ function adVariantTable(ev) {
   const rows = a.ads.map((x) => {
     const A = x.byPage[p1.pageId], B = x.byPage[p2.pageId];
     const ra = A ? rate(A.submitters, A.visitors) : null, rb = B ? rate(B.submitters, B.visitors) : null;
-    const tag = x.forcedVisitors > x.total * 0.5 ? chip("bad", "Link fija versión") : (A && B && A.visitors >= 30 && B.visitors >= 30) ? (rb > ra ? chip("good", `Mejor: ${esc(p2.label)}`) : ra > rb ? chip("info", `Mejor: ${esc(p1.label)}`) : chip("mute", "Empate")) : chip("mute", "Pocos datos");
+    const lead = rb > ra ? p2 : p1;
+    const tag = x.forcedVisitors > x.total * 0.5 ? chip("bad", "Link fija versión")
+      : !(A && B && A.visitors >= 30 && B.visitors >= 30) ? chip("mute", "Pocos datos")
+      : !A.submitters && !B.submitters ? chip("bad", "0 formularios")
+      : x.confidence >= 0.95 ? chip("good", `Mejor: ${esc(lead.label)}`)
+      : x.confidence >= 0.8 ? chip("info", `Tendencia: ${esc(lead.label)}`)
+      : chip("mute", "Sin diferencia clara");
     return `<tr><td><span class="mono">${esc(x.ad.startsWith("(") ? x.ad : shortId(x.ad))}</span></td><td>${cell(A)}</td><td>${cell(B)}</td><td>${tag}</td></tr>`;
   }).join("");
   return `<div class="card-sub"><h3>Qué anuncio lleva a cada versión</h3>
-    <p class="small muted">Visitantes · % que llena el formulario, por anuncio y versión. Datos de Framer, últimos ${data.range.days} días.</p>
+    <p class="small muted">Visitantes · % que llena el formulario, por anuncio y versión. Datos de Framer, últimos ${data.range.days} días. "Mejor" = 95% de confianza; "Tendencia" = entre 80% y 95%.</p>
     <div class="tablewrap"><table><thead><tr><th>Anuncio</th><th>${esc(p1.label)}</th><th>${esc(p2.label)}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
