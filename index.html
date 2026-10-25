@@ -1287,7 +1287,7 @@ function expView(x) {
     <p class="sublabel">Anuncio por anuncio: qué versión convierte más</p>
     ${x.ads.length ? `<div class="tablewrap"><table><thead><tr><th>Anuncio</th><th>Visitantes A</th><th>Formulario A</th><th>Visitantes B</th><th>Formulario B</th><th>Mejor</th></tr></thead><tbody>${adRows}</tbody></table></div>` : `<p class="muted">Todavía no hay anuncios con visitas medidas.</p>`}
     ${expExtras(x)}
-    <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings), desde el 24 de octubre." : "Datos de Framer, hasta que se conecte la medición propia."} Las visitas con un link que fuerza la versión no cuentan.</p></div>`;
+    <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings), versión por visitante desde el 25 de octubre." : "Datos de Framer, hasta que se conecte la medición propia."} Las visitas con un link que fuerza la versión no cuentan.</p></div>`;
 }
 
 function eventView(ev) {
@@ -1305,7 +1305,7 @@ function eventView(ev) {
       abView(ev))}
     ${emailView(ev)}
     ${ev.diagnosis ? diagnosisView(ev) : ""}
-    ${ev.experiment ? section("3b", "A/B medido por Highway", "Nuestra propia medición: qué versión vio cada persona, qué tocó y si se anotó. Cuenta solo a quienes pasaron por el reparto 50/50.", expView(ev.experiment)) : ""}
+    ${ev.experiment ? section("3b", "A/B medido por Highway", "Nuestra propia medición: qué versión vio cada persona, qué tocó y si se anotó. Cuenta solo a quienes pasaron por el reparto 50/50 (no a los que llegan con un link que fuerza la versión).", expView(ev.experiment)) : ""}
     ${section(6, "Visitantes y conversión por día", "Cada columna es un día. Sirve para ver si algo subió o bajó después de un cambio.",
       `<div class="grid g2">
         <div class="card big"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
