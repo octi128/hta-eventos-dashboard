@@ -495,6 +495,131 @@
     .tl { grid-template-columns: 1fr; gap: 2px; }
     .glossary dl { grid-template-columns: 1fr; }
   }
+
+  /* ===== v3: el test A/B y los anuncios primero ===== */
+  /* Identidad de versión (paleta categórica validada): Control azul, Variante naranja; link forzado gris con textura. */
+  :root { --v-a: var(--series-1); --v-b: var(--series-2); --v-c: var(--series-3); --v-forced: #b9b7ad; --hatch: rgba(11,11,11,.14); }
+  @media (prefers-color-scheme: dark) { :root:where(:not([data-theme="light"])) { --v-forced: #5a5954; --hatch: rgba(255,255,255,.16); } }
+  :root[data-theme="dark"] { --v-forced: #5a5954; --hatch: rgba(255,255,255,.16); }
+  .forced { background-image: repeating-linear-gradient(135deg, transparent 0 5px, var(--hatch) 5px 7px); }
+
+  .tabs.v3 { position: sticky; top: 0; z-index: 6; background: var(--page); margin: 0 0 24px; padding-top: 4px; gap: 2px; }
+  .tabs.v3 button { font-size: 16px; padding: 13px 16px; }
+  .tabs.v3 button:hover { color: var(--ink); }
+
+  .stack-v { display: flex; flex-direction: column; gap: 18px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--c); flex: none; }
+
+  /* Marcador del test */
+  .sb { padding: 0; overflow: hidden; }
+  .sb-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 24px 26px 0; }
+  .sb-head h3 { font-size: 22px; letter-spacing: -0.01em; }
+  .sb-head p { font-size: 14px; color: var(--ink-2); margin-top: 4px; }
+  .sb-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(200px, 250px) minmax(0, 1fr); padding: 20px 26px 24px; align-items: stretch; }
+  .sb-side { position: relative; display: flex; flex-direction: column; gap: 4px; padding: 20px 22px 20px 26px; border-radius: 14px; background: var(--surface-2); min-width: 0; }
+  .sb-side::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 4px; border-radius: 0 4px 4px 0; background: var(--c); }
+  .sb-side.lead { box-shadow: inset 0 0 0 2px var(--good); }
+  .sb-name { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 600; font-size: 16px; }
+  .sb-big { font-size: 60px; font-weight: 700; letter-spacing: -0.035em; line-height: 1; margin-top: 10px; }
+  .sb-lbl { font-size: 14px; color: var(--ink-2); }
+  .sb-nums { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 14px; color: var(--ink-2); margin-top: 10px; }
+  .sb-nums b { color: var(--ink); font-weight: 600; }
+  .sb-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 4px; padding: 0 20px; }
+  .sb-k { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .sb-diff { font-size: 36px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  .sb-rel { font-size: 14px; color: var(--ink-2); }
+  .conf { width: 100%; margin-top: 16px; }
+  .conf-t { position: relative; height: 8px; border-radius: 4px; background: var(--grid); }
+  .conf-t i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: var(--accent); }
+  .conf-t b { position: absolute; top: -5px; bottom: -5px; left: 95%; width: 2px; border-radius: 1px; background: var(--ink); }
+  .conf-l { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--ink-2); margin-top: 8px; }
+  .conf-l b { color: var(--ink); }
+  .conf-l span { white-space: nowrap; }
+  .sb-foot { border-top: 1px solid var(--border); padding: 18px 26px 22px; display: flex; flex-direction: column; gap: 12px; }
+  .sb-foot p { font-size: 15px; line-height: 1.55; }
+  .prog { height: 10px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+  .prog i { display: block; height: 100%; border-radius: 6px; background: var(--accent); }
+
+  /* Cuánto tráfico entra al test */
+  .card.alert-bad { border-left: 6px solid var(--critical); }
+  .alloc { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 28px; align-items: center; }
+  .alloc-big { font-size: 52px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+  .alloc-sub { display: block; font-size: 14px; color: var(--ink-2); margin-top: 8px; }
+  .stackbar { display: flex; gap: 2px; height: 30px; border-radius: 8px; overflow: hidden; }
+  .stackbar span, .minisplit span { display: block; height: 100%; min-width: 3px; }
+  .alloc-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 14px; font-size: 14px; color: var(--ink-2); }
+  .alloc-legend span { display: inline-flex; align-items: center; }
+  .alloc-legend b { color: var(--ink); margin-left: 6px; }
+  .fix { margin-top: 18px; padding: 14px 16px; border-radius: 12px; font-size: 15px; line-height: 1.5;
+    background: color-mix(in srgb, var(--critical) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--critical) 28%, transparent); }
+  .fix b { color: var(--critical-ink); }
+  .ok-line { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+
+  /* Flujo anuncio → versión */
+  .flow { width: 100%; position: relative; min-height: 120px; }
+  .flow svg { display: block; width: 100%; overflow: visible; }
+  .flow .lk { fill-opacity: .42; transition: fill-opacity .12s; }
+  .flow svg.hl .lk { fill-opacity: .1; }
+  .flow svg.hl .lk.on { fill-opacity: .75; }
+  .flow .nl { fill: var(--ink); font-size: 13px; font-weight: 600; }
+  .flow .ns { fill: var(--ink-2); font-size: 12px; }
+  .flow .hit { fill: transparent; }
+  .flow-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--ink-2); margin-top: 14px; }
+  .flow-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+  /* Tabla anuncio por anuncio */
+  .adtab td { vertical-align: middle; }
+  .adcell { display: flex; align-items: center; gap: 12px; min-width: 210px; max-width: 320px; }
+  .adcell img, .adph { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex: none; background: var(--surface-2); }
+  .adph { display: grid; place-items: center; font-size: 10px; font-weight: 700; letter-spacing: .04em; color: var(--muted); border: 1px solid var(--border); }
+  .adcell > div { min-width: 0; }
+  .adcell b { display: block; font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .adcell span { display: block; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+  .minisplit { display: flex; gap: 2px; width: 150px; height: 14px; border-radius: 4px; overflow: hidden; margin-left: auto; }
+  .cv b { display: block; font-size: 15px; font-weight: 700; }
+  .cv span { font-size: 12px; color: var(--muted); }
+  .vchip { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .hbars.ads .hbar { grid-template-columns: minmax(0, 300px) minmax(0, 1fr) 70px; }
+  .hbar-l2 { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .hbar-name { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 14px; }
+  .hbar-name > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .hbar-name .chip { flex: none; }
+  .hint { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-2); padding: 12px 14px; border: 1px dashed var(--axis); border-radius: 12px; margin: 4px 0 6px; }
+  .linkcell { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+  .linkcell mark { background: color-mix(in srgb, var(--critical) 18%, transparent); color: var(--critical-ink); border-radius: 3px; padding: 0 2px; }
+
+  /* Versiones con captura */
+  .vshow { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+  .vs { display: grid; grid-template-columns: 150px minmax(0, 1fr); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .vs-shot { display: block; background: var(--surface-2); border-right: 1px solid var(--border); }
+  .vs-shot img { width: 100%; height: 230px; object-fit: cover; object-position: top; display: block; }
+  .vs-body { padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; border-top: 4px solid var(--c); }
+
+  @media (max-width: 900px) {
+    .ev-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .ev-card { padding: 16px; }
+    .ev-big { font-size: 30px; }
+    .hbars.ads .hbar { grid-template-columns: minmax(0, 1fr) 60px; }
+    .hbar-l2 { grid-column: 1 / -1; }
+  }
+  @media (max-width: 820px) {
+    .sb-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+    .sb-mid { padding: 8px 0; }
+    .alloc { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  }
+  @media (max-width: 560px) {
+    .tabs.v3 button { font-size: 14px; padding: 11px 10px; }
+    .ev-cards { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -16px 20px; padding: 2px 16px 6px; }
+    .ev-card { flex: 0 0 78%; scroll-snap-align: start; }
+    .ev-big { font-size: 30px; }
+    .flow .nl { font-size: 12px; }
+    .flow .ns { font-size: 11px; }
+    .sb-head, .sb-grid, .sb-foot { padding-left: 16px; padding-right: 16px; }
+    .sb-big { font-size: 48px; }
+    .alloc-big { font-size: 44px; }
+    .vs { grid-template-columns: 110px minmax(0, 1fr); }
+    .vs-shot img { height: 190px; }
+  }
 </style>
 </head>
 <body>
@@ -518,8 +643,9 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
-let prefs = { days: 14, paid: false, event: "hollywood" };
+let prefs = { days: 14, paid: false, event: "hollywood", tab: "ab" };
 try { Object.assign(prefs, JSON.parse(store.get(PREF_STORE) || "{}")); } catch {}
+if (!["ab", "resumen", "anuncios", "emails", "diag"].includes(prefs.tab)) prefs.tab = "ab";
 const savePrefs = () => store.set(PREF_STORE, JSON.stringify(prefs));
 
 let data = null, loading = false, lastError = null;
@@ -911,7 +1037,7 @@ const fmtDate = (iso) => new Date(iso).toLocaleString("es-AR", { timeZone: "Amer
 const chip = (tone, text) => `<span class="chip ${tone}">${text}</span>`;
 const kpi = (label, value, sub, tone) => `<div class="kpi ${tone}"><span class="kpi-l">${label}</span><span class="kpi-v num">${value}</span><span class="kpi-s">${sub}</span></div>`;
 const section = (n, title, sub, body) => `<section class="sec">
-  <header class="sec-head"><span class="sec-num">${n}</span><div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div></header>
+  <header class="sec-head">${n != null ? `<span class="sec-num">${n}</span>` : ""}<div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ""}</div></header>
   ${body}</section>`;
 const toneOf = (r) => r == null ? "mute" : r >= 0.4 ? "good" : r >= 0.25 ? "warn" : "bad";
 const segOf = () => (prefs.paid ? "paid" : "all");
@@ -1020,13 +1146,14 @@ function adsChart(ev) {
   const max = Math.max(...list.map((a) => crate(a) || 0), 0.0001);
   const valid = list.filter((a) => !a.flagged && a.visitors >= 50);
   const bestA = valid[0], worstA = valid.length > 1 ? valid[valid.length - 1] : null;
-  return `<div class="hbars">${list.map((a) => {
+  return `<div class="hbars ads">${list.map((a) => {
     const r = crate(a) || 0;
     const tone = a.flagged ? "bad" : a === bestA ? "good" : a === worstA ? "warn" : "info";
     const tag = a.flagged ? chip("bad", "Revisar") : a === bestA ? chip("good", "Mejor") : a === worstA ? chip("warn", "Más flojo") : "";
-    const tip = `<b>${esc(shortId(a.ad))}</b><br>${fmt(a.visitors)} visitantes · ${fmt(a.submitters)} formularios<br>${fmt(a.confirmed)} confirmaciones`;
+    const name = adLabel(a.ad).name;
+    const tip = `<b>${esc(name)}</b><br>${fmt(a.visitors)} visitantes · ${fmt(a.submitters)} formularios<br>${fmt(a.confirmed)} confirmaciones`;
     return `<div class="hbar" data-tip="${esc(tip)}">
-      <div class="hbar-l"><span class="mono">${esc(shortId(a.ad))}</span>${tag}<span class="muted small">${fmt(a.visitors)} visitantes</span></div>
+      <div class="hbar-l2"><div class="hbar-name"><span class="${metaOf(a.ad) ? "" : "mono"}" title="${esc(name)}">${esc(name)}</span>${tag}</div><span class="muted small">${fmt(a.visitors)} visitantes</span></div>
       <div class="hbar-t"><i class="${tone}" style="width:${(r / max) * 100}%"></i></div>
       <div class="hbar-v num">${pct(r)}</div>
     </div>`;
@@ -1045,38 +1172,6 @@ function variantDetailTable(t, seg) {
         <td>${pct(cr(v))}</td><td>${fmt(v[seg].confirmed)}</td>
         <td>${c && c.lift != null ? (c.lift > 0 ? "+" : "") + pct(c.lift, 0) : "base"}</td><td>${c ? pct(c.confidence) : "—"}</td></tr>`;
     }).join("")}</tbody></table></div>`;
-}
-
-/* ---------- Links que fuerzan una versión y anuncio por versión (datos de Framer) ---------- */
-function forcedBanner(ev) {
-  const a = ev.adVariants;
-  if (!a || !a.forced || a.forcedShare < 0.05) return "";
-  const page = a.pages.slice().sort((x, y) => y.forced - x.forced)[0];
-  const forcingAds = a.ads.filter((x) => x.forcedVisitors > 0).slice(0, 5).map((x) => esc(shortId(x.ad))).join(", ");
-  return `<div class="banner bad"><strong>${pct(a.forcedShare, 0)} del tráfico no entra al test: el link del anuncio fuerza la versión ${esc(page.label)}</strong>
-    <p>${fmt(a.forced)} de ${fmt(a.total)} visitantes llegaron con <span class="mono">framer_variant=${esc(page.pageId)}</span> en la URL. Esos no pasan por el reparto 50/50 y no cuentan en el test. Para que el test reciba todo el tráfico, sacá ese parámetro del link en Meta${forcingAds ? ` (anuncios ${forcingAds}…)` : ""}.</p></div>`;
-}
-
-function adVariantTable(ev) {
-  const a = ev.adVariants;
-  if (!a || a.pages.length < 2 || !a.ads.length) return "";
-  const [p1, p2] = a.pages;
-  const cell = (x) => x ? `${fmt(x.visitors)} · ${pct(rate(x.submitters, x.visitors))}` : "—";
-  const rows = a.ads.map((x) => {
-    const A = x.byPage[p1.pageId], B = x.byPage[p2.pageId];
-    const ra = A ? rate(A.submitters, A.visitors) : null, rb = B ? rate(B.submitters, B.visitors) : null;
-    const lead = rb > ra ? p2 : p1;
-    const tag = x.forcedVisitors > x.total * 0.5 ? chip("bad", "Link fija versión")
-      : !(A && B && A.visitors >= 30 && B.visitors >= 30) ? chip("mute", "Pocos datos")
-      : !A.submitters && !B.submitters ? chip("bad", "0 formularios")
-      : x.confidence >= 0.95 ? chip("good", `Mejor: ${esc(lead.label)}`)
-      : x.confidence >= 0.8 ? chip("info", `Tendencia: ${esc(lead.label)}`)
-      : chip("mute", "Sin diferencia clara");
-    return `<tr><td><span class="mono">${esc(x.ad.startsWith("(") ? x.ad : shortId(x.ad))}</span></td><td>${cell(A)}</td><td>${cell(B)}</td><td>${tag}</td></tr>`;
-  }).join("");
-  return `<div class="card-sub"><h3>Qué anuncio lleva a cada versión</h3>
-    <p class="small muted">Visitantes · % que llena el formulario, por anuncio y versión. Datos de Framer, últimos ${data.range.days} días. "Mejor" = 95% de confianza; "Tendencia" = entre 80% y 95%.</p>
-    <div class="tablewrap"><table><thead><tr><th>Anuncio</th><th>${esc(p1.label)}</th><th>${esc(p2.label)}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
 }
 
 function testBlock(ev, t, seg, quiet = false) {
@@ -1107,24 +1202,6 @@ function testBlock(ev, t, seg, quiet = false) {
   return `${banner}${cards}
     <div class="card-sub"><h3>Conversión a formulario, lado a lado</h3>${bars}</div>
     <details class="more"><summary>Ver tabla completa del test</summary>${variantDetailTable(t, seg)}</details>`;
-}
-
-function abView(ev) {
-  const seg = segOf();
-  const [latest, ...older] = ev.tests;
-  if (!latest) {
-    return `<div class="card"><p class="ink-2">No hay tests A/B con tráfico en esta landing en los últimos 90 días. Esta es la versión publicada:</p>
-      <div class="vcards">${(ev.versions || []).map((v) => versionCard(ev, v, null, seg)).join("")}</div></div>`;
-  }
-  const a = analyzeTest(latest, seg);
-  const olderBlock = older.length ? `<details class="more"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary>
-    ${older.map((t) => `<p class="sublabel">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short" })} · ${fmt(t.totalVisitors)} visitantes</p>${variantDetailTable(t, seg)}`).join("")}</details>` : "";
-  if (a.status !== "collecting") return `${forcedBanner(ev)}${testBlock(ev, latest, seg)}${adVariantTable(ev)}${olderBlock}`;
-  // Mientras se juntan datos del test nuevo, mostramos el último test que ya tiene resultados.
-  const prev = older.find((t) => analyzeTest(t, seg).status !== "collecting");
-  return `${forcedBanner(ev)}${testBlock(ev, latest, seg)}${adVariantTable(ev)}
-    ${prev ? `<div class="sec-sub"><h3>Último test con resultados</h3><p class="small muted">${dateFmt(prev.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(prev.lastTs, { day: "numeric", month: "short" })} · ${fmt(prev.totalVisitors)} visitantes</p></div>${testBlock(ev, prev, seg, true)}` : ""}
-    ${olderBlock}`;
 }
 
 function versionCard(ev, v, badge, seg, isWin = false) {
@@ -1206,7 +1283,7 @@ function emailView(ev) {
   } else {
     body = emailBody(ev.email);
   }
-  return section(4, "Secuencia de emails", "Los mails que recibe la gente que se anotó: si los abren, si hacen clic y qué conviene cambiar.", body);
+  return section(null, "Secuencia de emails", "Los mails que recibe la gente que se anotó: si los abren, si hacen clic y qué conviene cambiar.", body);
 }
 
 /* ---------- 5. Diagnóstico ---------- */
@@ -1226,7 +1303,7 @@ function diagnosisView(ev) {
   const outbound = d.outbound.length
     ? `<div class="tablewrap"><table><thead><tr><th>Destino</th><th>Personas</th></tr></thead><tbody>${d.outbound.map((o) => `<tr><td>${linkKind(o.href) === "other-page" ? `<span class="flag">⚠ </span>` : ""}<span class="mono">${esc(o.href.replace(/^https?:\/\//, "").slice(0, 48))}</span></td><td>${fmt(o.visitors)}</td></tr>`).join("")}</tbody></table></div>`
     : `<p class="small muted">Nadie salió por enlaces en este período.</p>`;
-  return section(5, "Diagnóstico", "Qué está funcionando, qué no, y qué probar primero.", `
+  return section(null, "Diagnóstico", "Qué está funcionando, qué no, y qué probar primero.", `
     <div class="ideas">${ins.map((i) => `<div class="idea ${i.kind}"><span class="idea-ic" aria-hidden="true">${icon[i.kind]}</span><div><span class="tag">${esc(i.tag)}</span><strong>${esc(i.title)}</strong><p>${esc(i.body)}</p></div></div>`).join("")}</div>
     <div class="grid g2 block">
       <div class="card-sub"><h3>Dispositivos</h3><p class="small muted">Cuántos de cada tipo completan el formulario.</p>${devBars}</div>
@@ -1296,40 +1373,400 @@ function expView(x) {
     <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings), versión por visitante desde el 25 de octubre." : "Datos de Framer, hasta que se conecte la medición propia."} Las visitas con un link que fuerza la versión no cuentan.</p></div>`;
 }
 
-function eventView(ev) {
+/* ---------- Pestaña principal: test A/B y de qué anuncios llega la gente ---------- */
+const VCOL = ["var(--v-a)", "var(--v-b)", "var(--v-c)"];
+const FORCED_COL = "var(--v-forced)";
+const metaOf = (id) => data.meta?.ads?.[id] || null;
+const money = (n) => n == null ? "—" : "$" + n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const isForcedAd = (a) => a.forcedVisitors > a.total * 0.5;
+const statSum = (byPage, k) => Object.values(byPage || {}).reduce((t, s) => t + (s[k] || 0), 0);
+const trunc = (s, n) => s.length > n ? s.slice(0, Math.max(1, n - 1)) + "…" : s;
+// Período de los datos por anuncio: desde que arrancó el test actual, o el período elegido.
+const adWindow = (ev) => {
+  const f = ev.adVariants?.from;
+  return f && new Date(f) > new Date(data.range.from) ? `Desde el ${dateFmt(f, { day: "numeric", month: "short" })}` : `Últimos ${data.range.days} días`;
+};
+
+// Color fijo por versión: la original siempre azul, la primera variante naranja.
+function pageColor(ev, pageId) {
+  const i = (ev.versions || []).filter((v) => !v.isControl).findIndex((v) => v.pageId === pageId);
+  return i < 0 ? VCOL[0] : VCOL[Math.min(i + 1, VCOL.length - 1)];
+}
+
+// Nombre legible del anuncio: el de Meta si está conectado; si no, el final del ID.
+function adLabel(id) {
+  if (!id || id === "(sin anuncio)") return { name: "Sin anuncio", sub: "orgánico, directo o link sin UTM" };
+  const m = metaOf(id);
+  if (m?.name) return { name: m.name, sub: m.campaign || `ID …${id.slice(-8)}`, thumb: m.thumb };
+  return { name: `Anuncio …${id.slice(-8)}`, sub: `ID ${id}` };
+}
+
+function statusChip(a) {
+  return a.status === "collecting" ? chip("info", "Juntando datos")
+    : a.status === "broken" ? chip("bad", "Tráfico desparejo")
+    : a.status === "winner" ? chip("good", `Gana ${esc(a.leader.label)}`)
+    : a.status === "leading" ? chip("info", `${esc(a.leader.label)} va adelante`)
+    : chip("mute", "Sin datos suficientes");
+}
+
+function scoreboard(ev, t, seg) {
+  const a = analyzeTest(t, seg);
+  const ctrl = t.variants.find((v) => v.isControl) || t.variants[0];
+  const alt = t.variants.find((v) => v !== ctrl);
+  if (!alt) return "";
+  const cr = (v) => rate(v[seg].submitters, v[seg].visitors);
+  const rc = cr(ctrl), rv = cr(alt);
+  const conf = alt.vsControl?.[seg]?.confidence ?? null;
+  const diff = rc != null && rv != null ? rv - rc : null;
+  const lead = !diff ? null : diff > 0 ? alt : ctrl;
+  const trail = lead === alt ? ctrl : alt;
+  const total = ctrl[seg].visitors + alt[seg].visitors;
+  const side = (v) => {
+    const s = v[seg];
+    const win = a.status === "winner" && a.leader === v;
+    return `<div class="sb-side ${win ? "lead" : ""}" style="--c:${pageColor(ev, v.pageId)}">
+      <div class="sb-name"><i class="dot"></i>${esc(v.label)}${v.isControl ? ` <span class="muted small">(original)</span>` : ""}${win ? chip("good", "Ganadora") : ""}</div>
+      <div class="sb-big num">${pct(cr(v))}</div>
+      <div class="sb-lbl">llena el formulario</div>
+      <div class="sb-nums"><span><b class="num">${fmt(s.submitters)}</b> de <b class="num">${fmt(s.visitors)}</b> visitantes</span><span><b class="num">${fmt(s.confirmed)}</b> confirmaciones</span></div>
+      ${v.share != null ? `<div class="sb-lbl small">Recibe el ${pct(v.share, 0)} del tráfico del test</div>` : ""}
+    </div>`;
+  };
+  const pts = diff == null ? "—" : `${diff > 0 ? "+" : diff < 0 ? "−" : "±"}${Math.abs(diff * 100).toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} pts`;
+  const rt = lead ? cr(trail) : null;
+  const rel = lead && rt ? `${esc(lead.label)} convierte ${pct((cr(lead) - rt) / rt, 0)} más` : "Las dos convierten igual";
+  const confTip = "Confianza: qué tan seguro es que la diferencia no sea casualidad. Se declara ganadora a una versión desde 95%.";
+  const mid = `<div class="sb-mid">
+      <span class="sb-k">${esc(alt.label)} vs ${esc(ctrl.label)}</span>
+      <span class="sb-diff num">${pts}</span>
+      <span class="sb-rel">${rel}</span>
+      <div class="conf" data-tip="${esc(confTip)}">
+        <div class="conf-t"><i style="width:${conf == null ? 0 : Math.max(2, conf * 100)}%"></i><b></b></div>
+        <div class="conf-l"><span>Confianza <b class="num">${conf == null ? "—" : pct(conf, 0)}</b></span><span>meta 95%</span></div>
+      </div>
+    </div>`;
+  const foot = a.status === "collecting"
+    ? `<p><b>Cuenta regresiva:</b> ${fmt(total)} de ${fmt(COLLECT_MIN)} visitantes. Faltan <b>${fmt(a.left)}</b> para leer resultados${a.eta ? `, unos ${a.eta} día${a.eta > 1 ? "s" : ""} al ritmo actual` : ""}.</p>
+       <div class="prog"><i style="width:${Math.min(100, (total / COLLECT_MIN) * 100)}%"></i></div>`
+    : `<p>${a.verdict || esc(a.body)}</p>`;
+  return `<div class="card sb">
+    <div class="sb-head"><div><h3>Test A/B · ${esc(ev.name)}</h3>
+      <p>Desde el ${dateFmt(t.firstTs, { day: "numeric", month: "short" })} · ${fmt(total)} visitantes en el test · ${prefs.paid ? "solo tráfico pago" : "todas las fuentes"}</p></div>${statusChip(a)}</div>
+    <div class="sb-grid">${side(ctrl)}${mid}${side(alt)}</div>
+    <div class="sb-foot">${foot}</div>
+  </div>`;
+}
+
+// Qué parte del tráfico pasa por el reparto y qué parte llega con un link que fuerza la versión.
+function allocCard(ev) {
+  const av = ev.adVariants;
+  if (!av || av.pages.length < 2 || !av.total) return "";
+  const parts = [
+    ...av.pages.map((p) => ({ label: p.label, note: "en el test", v: p.visitors - p.forced, col: pageColor(ev, p.pageId) })),
+    ...av.pages.map((p) => ({ label: p.label, note: "link forzado", v: p.forced, col: FORCED_COL, forced: true })),
+  ].filter((x) => x.v > 0);
+  const inTest = av.total - av.forced;
+  const bad = av.forcedShare >= 0.05;
+  const fp = av.pages.slice().sort((x, y) => y.forced - x.forced)[0];
+  const nForcing = av.ads.filter(isForcedAd).length;
+  const bar = `<div class="stackbar">${parts.map((x) => `<span class="${x.forced ? "forced" : ""}" style="flex:${x.v};background-color:${x.col}"
+    data-tip="${esc(`<b>${esc(x.label)} · ${x.note}</b><br>${fmt(x.v)} visitantes (${pct(x.v / av.total, 0)})`)}"></span>`).join("")}</div>`;
+  const legend = `<div class="alloc-legend">${parts.map((x) => `<span><i class="key ${x.forced ? "forced" : ""}" style="background-color:${x.col}"></i>${esc(x.label)} · ${x.note}<b class="num">${fmt(x.v)}</b></span>`).join("")}</div>`;
+  const fix = bad ? `<div class="fix"><b>Cómo arreglarlo:</b> en Meta, sacá <span class="mono">framer_variant=${esc(fp.pageId)}</span> del link de ${fmt(nForcing)} anuncio${nForcing === 1 ? "" : "s"} (los ves abajo, en "Anuncios con link forzado"). Así todo el tráfico pasa por el reparto 50/50.</div>` : "";
+  return `<div class="card big ${bad ? "alert-bad" : ""}">
+    <div class="card-head"><h3>¿Cuánto tráfico entra al test?</h3><span class="small muted">${adWindow(ev)} · Framer</span></div>
+    <div class="alloc">
+      <div><div class="alloc-big num">${pct(inTest / av.total, 0)}</div><span class="alloc-sub">de ${fmt(av.total)} visitantes pasa por el reparto${bad ? "; el resto llega con un link que fuerza la versión" : ""}</span></div>
+      <div>${bar}${legend}</div>
+    </div>${fix}</div>`;
+}
+
+/* Flujo anuncio → versión (sankey de dos columnas) */
+function flowModel(ev) {
+  const av = ev.adVariants;
+  if (!av || av.pages.length < 2 || !av.ads.length) return null;
+  const targets = [
+    ...av.pages.map((p) => ({ page: p.pageId, name: p.label, note: "en el test", col: pageColor(ev, p.pageId), forced: false })),
+    ...av.pages.map((p) => ({ page: p.pageId, name: p.label, note: "link forzado", col: FORCED_COL, forced: true })),
+  ];
+  const TOP = 7;
+  let src = av.ads.slice(0, TOP).map((a) => ({ ...adLabel(a.ad), test: a.test || {}, forcedBy: a.forcedBy || {} }));
+  const rest = [...av.ads.slice(TOP), ...(av.rest ? [av.rest] : [])];
+  if (rest.length) {
+    const merge = (key) => {
+      const o = {};
+      for (const a of rest) for (const [pg, st] of Object.entries(a[key] || {})) {
+        o[pg] ??= { visitors: 0, submitters: 0 };
+        o[pg].visitors += st.visitors; o[pg].submitters += st.submitters;
+      }
+      return o;
+    };
+    const n = av.ads.length - TOP + (av.rest?.count || 0);
+    src.push({ name: `Otros ${fmt(n)} anuncio${n === 1 ? "" : "s"}`, sub: "agrupados", test: merge("test"), forcedBy: merge("forcedBy") });
+  }
+  const val = (s, t) => (t.forced ? s.forcedBy : s.test)[t.page] || null;
+  const tg = targets.filter((t) => src.some((s) => val(s, t)?.visitors > 0));
+  src = src.filter((s) => tg.some((t) => val(s, t)?.visitors > 0));
+  const links = [];
+  src.forEach((s, i) => tg.forEach((t, j) => { const st = val(s, t); if (st?.visitors > 0) links.push({ s: i, t: j, v: st.visitors, f: st.submitters || 0 }); }));
+  const tot = (key, i, k) => links.filter((l) => l[key] === i).reduce((x, l) => x + l[k], 0);
+  src.forEach((s, i) => { s.v = tot("s", i, "v"); s.f = tot("s", i, "f"); });
+  tg.forEach((t, j) => { t.v = tot("t", j, "v"); t.f = tot("t", j, "f"); });
+  return { src, tg, links };
+}
+
+// Cada nodo ocupa una franja de al menos `min` px para que las etiquetas no se pisen; el alto del nodo sigue siendo proporcional.
+function flowLayout(nodes, k, gap, min) {
+  let y = 0;
+  for (const n of nodes) {
+    n.h = n.v * k;
+    const slot = Math.max(n.h + gap, min);
+    n.y = y + (slot - n.h) / 2; n.cy = n.y + n.h / 2; n.off = 0;
+    y += slot;
+  }
+  return y;
+}
+
+function drawFlow(el, m) {
+  const W = el.clientWidth;
+  if (!W) return;
+  const narrow = W < 640;
+  const LW = narrow ? Math.round(W * 0.4) : Math.min(270, Math.round(W * 0.3));
+  const RW = narrow ? Math.round(W * 0.32) : Math.min(190, Math.round(W * 0.2));
+  const NW = 12, GAP = 10, MIN_S = narrow ? 38 : 42, MIN_T = 62;
+  const target = Math.max(narrow ? 300 : 340, m.src.length * MIN_S);
+  // Escala: la mayor que entra en el alto objetivo en las dos columnas.
+  let lo = 0, hi = 50;
+  for (let i = 0; i < 40; i++) {
+    const k = (lo + hi) / 2;
+    const h = Math.max(flowLayout(m.src, k, GAP, MIN_S), flowLayout(m.tg, k, GAP, MIN_T));
+    if (h > target) hi = k; else lo = k;
+  }
+  const hs = flowLayout(m.src, lo, GAP, MIN_S), ht = flowLayout(m.tg, lo, GAP, MIN_T);
+  const H = Math.max(hs, ht);
+  for (const n of m.src) { n.y += (H - hs) / 2; n.cy += (H - hs) / 2; }
+  for (const n of m.tg) { n.y += (H - ht) / 2; n.cy += (H - ht) / 2; }
+  const xa = LW, xb = W - RW - NW, xm = (xa + NW + xb) / 2;
+  const charW = narrow ? 7.2 : 8; // ancho promedio de la letra en negrita (12px en celular, 13px en escritorio)
+  const chars = Math.floor((LW - 14) / charW), tchars = Math.floor((RW - 22) / charW);
+  const conv = (n) => pct(rate(n.f, n.v));
+  const links = m.links.map((l) => {
+    const s = m.src[l.s], t = m.tg[l.t], h = Math.max(l.v * lo, 0.6);
+    const y0 = s.y + s.off, y1 = t.y + t.off;
+    s.off += l.v * lo; t.off += l.v * lo;
+    const tipTxt = `<b>${esc(s.name)}</b> → <b>${esc(t.name)}</b> (${t.note})<br>${fmt(l.v)} visitantes · ${fmt(l.f)} formularios (${pct(rate(l.f, l.v))})`;
+    return `<path class="lk" data-s="${l.s}" data-t="${l.t}" fill="${t.col}" data-tip="${esc(tipTxt)}"
+      d="M${xa + NW},${y0} C${xm},${y0} ${xm},${y1} ${xb},${y1} L${xb},${y1 + h} C${xm},${y1 + h} ${xm},${y0 + h} ${xa + NW},${y0 + h} Z"/>`;
+  }).join("");
+  const srcNodes = m.src.map((s, i) => `<g data-node="s${i}" data-tip="${esc(`<b>${esc(s.name)}</b><br>${fmt(s.v)} visitantes · ${fmt(s.f)} formularios (${conv(s)})`)}">
+      <rect class="hit" x="0" y="${s.cy - MIN_S / 2}" width="${xa + NW}" height="${MIN_S}"/>
+      <rect x="${xa}" y="${s.y}" width="${NW}" height="${Math.max(s.h, 2)}" rx="3" fill="var(--axis)"/>
+      <text class="nl" x="${xa - 10}" y="${s.cy - 3}" text-anchor="end">${esc(trunc(s.name, chars))}</text>
+      <text class="ns" x="${xa - 10}" y="${s.cy + 13}" text-anchor="end">${fmt(s.v)}${narrow ? "" : " visitantes"} · ${conv(s)}</text></g>`).join("");
+  const tgNodes = m.tg.map((t, j) => `<g data-node="t${j}" data-tip="${esc(`<b>${esc(t.name)}</b> (${t.note})<br>${fmt(t.v)} visitantes · ${fmt(t.f)} formularios (${conv(t)})`)}">
+      <rect class="hit" x="${xb}" y="${t.cy - MIN_T / 2}" width="${RW + NW}" height="${MIN_T}"/>
+      <rect x="${xb}" y="${t.y}" width="${NW}" height="${Math.max(t.h, 2)}" rx="3" fill="${t.col}" class="${t.forced ? "" : ""}"/>
+      <text class="nl" x="${xb + NW + 10}" y="${t.cy - 10}">${esc(trunc(t.name, tchars))}</text>
+      <text class="ns" x="${xb + NW + 10}" y="${t.cy + 6}">${t.note}</text>
+      <text class="ns" x="${xb + NW + 10}" y="${t.cy + 22}">${fmt(t.v)} · ${conv(t)}</text></g>`).join("");
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="De qué anuncio llega cada visitante a cada versión">${links}${srcNodes}${tgNodes}</svg>`;
+  const svg = el.querySelector("svg");
+  const clear = () => { svg.classList.remove("hl"); svg.querySelectorAll(".lk.on").forEach((p) => p.classList.remove("on")); };
+  const light = (list) => { clear(); svg.classList.add("hl"); list.forEach((p) => p.classList.add("on")); };
+  svg.querySelectorAll("[data-node]").forEach((g) => {
+    const key = g.dataset.node[0], idx = g.dataset.node.slice(1);
+    g.addEventListener("pointerenter", () => light(svg.querySelectorAll(`.lk[data-${key}="${idx}"]`)));
+    g.addEventListener("pointerleave", clear);
+  });
+  svg.querySelectorAll(".lk").forEach((p) => { p.addEventListener("pointerenter", () => light([p])); p.addEventListener("pointerleave", clear); });
+  bindTips(el);
+}
+
+function flowCard(ev) {
+  const m = flowModel(ev);
+  if (!m) return "";
+  const legend = m.tg.map((t) => `<span><i class="${t.forced ? "forced" : ""}" style="background-color:${t.col}"></i>${esc(t.name)} · ${t.note}</span>`).join("");
+  return `<div class="card big">
+    <div class="card-head"><h3>De qué anuncio llega cada visitante</h3><span class="small muted">${adWindow(ev)} · el grosor es la cantidad de visitantes</span></div>
+    <div class="flow" id="c-flow"></div>
+    <div class="flow-legend">${legend}</div>
+    <p class="note">Pasá el mouse por un anuncio o una versión para ver solo ese recorrido. Los ${fmt(Math.min(7, ev.adVariants.ads.length))} anuncios con más visitas van por separado; el resto se agrupa.</p>
+  </div>`;
+}
+
+/* Tabla anuncio por anuncio */
+function adRowsTable(ev) {
+  const av = ev.adVariants;
+  if (!av || !av.ads.length) return "";
+  const pages = av.pages;
+  const metaOn = Boolean(data.meta?.connected);
+  const adCell = (a) => {
+    const l = adLabel(a.ad);
+    return `<div class="adcell">${l.thumb ? `<img src="${esc(l.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="adph" aria-hidden="true">AD</span>`}
+      <div><b title="${esc(l.name)}">${esc(l.name)}</b><span title="${esc(l.sub || "")}">${esc(l.sub || "")}</span></div></div>`;
+  };
+  const split = (a) => {
+    const segs = [
+      ...pages.map((p) => ({ v: a.test?.[p.pageId]?.visitors || 0, col: pageColor(ev, p.pageId), t: `${p.label} · en el test` })),
+      ...pages.map((p) => ({ v: a.forcedBy?.[p.pageId]?.visitors || 0, col: FORCED_COL, t: `${p.label} · link forzado`, forced: true })),
+    ].filter((x) => x.v > 0);
+    return `<div class="minisplit">${segs.map((x) => `<span class="${x.forced ? "forced" : ""}" style="flex:${x.v};background-color:${x.col}"
+      data-tip="${esc(`<b>${esc(x.t)}</b><br>${fmt(x.v)} visitantes (${pct(x.v / a.total, 0)} del anuncio)`)}"></span>`).join("")}</div>`;
+  };
+  const cv = (st) => st && st.visitors
+    ? `<div class="cv"><b class="num">${pct(rate(st.submitters, st.visitors))}</b><span class="num">${fmt(st.submitters)} de ${fmt(st.visitors)}</span></div>`
+    : `<span class="muted">—</span>`;
+  const verdict = (a) => {
+    const [A, B] = pages.map((p) => a.test?.[p.pageId]);
+    if (!(A && B && A.visitors >= 30 && B.visitors >= 30)) return chip("mute", "Pocos datos");
+    if (!A.submitters && !B.submitters) return chip("bad", "0 formularios");
+    const lead = rate(B.submitters, B.visitors) > rate(A.submitters, A.visitors) ? pages[1] : pages[0];
+    return a.confidence >= 0.95 ? chip("good", `Mejor: ${esc(lead.label)}`)
+      : a.confidence >= 0.8 ? chip("info", `Tendencia: ${esc(lead.label)}`)
+      : chip("mute", "Sin diferencia clara");
+  };
+  const hint = !metaOn
+    ? `<div class="hint">${chip("info", "Próximo paso")} Conectando Meta, acá aparecen el nombre y la miniatura de cada anuncio (y en la pestaña Anuncios, el gasto y el costo por formulario).</div>`
+    : data.meta.error ? `<p class="small err">Meta: ${esc(data.meta.error)}</p>` : "";
+
+  if (pages.length < 2) {
+    const rows = av.ads.slice(0, 25).map((a) => {
+      const st = statSum(a.byPage, "visitors") ? Object.values(a.byPage).reduce((acc, s) => ({ visitors: acc.visitors + s.visitors, submitters: acc.submitters + s.submitters, confirmed: acc.confirmed + s.confirmed }), { visitors: 0, submitters: 0, confirmed: 0 }) : null;
+      return `<tr><td>${adCell(a)}</td><td class="num">${fmt(a.total)}</td><td>${cv(st)}</td><td class="num">${fmt(st?.confirmed)}</td></tr>`;
+    }).join("");
+    return `<div class="card big"><div class="card-head"><h3>Anuncio por anuncio</h3><span class="small muted">${adWindow(ev)} · Framer</span></div>${hint}
+      <div class="tablewrap"><table class="adtab"><thead><tr><th>Anuncio</th><th>Visitantes</th><th>Formulario</th><th>Confirmaciones</th></tr></thead><tbody>${rows}</tbody></table></div></div>`;
+  }
+
+  const inTest = av.ads.filter((a) => !isForcedAd(a));
+  const forced = av.ads.filter(isForcedAd);
+  const testRows = inTest.slice(0, 25).map((a) => `<tr><td>${adCell(a)}</td><td class="num">${fmt(a.total)}</td><td>${split(a)}</td>
+    ${pages.slice(0, 2).map((p) => `<td>${cv(a.test?.[p.pageId])}</td>`).join("")}<td>${verdict(a)}</td></tr>`).join("");
+  const forcedVisitors = forced.reduce((t, a) => t + a.forcedVisitors, 0);
+  const forcedRows = forced.map((a) => {
+    const top = pages.slice().sort((x, y) => (a.forcedBy?.[y.pageId]?.visitors || 0) - (a.forcedBy?.[x.pageId]?.visitors || 0))[0];
+    const m = metaOf(a.ad);
+    const shortLink = (u) => { try { const x = new URL(u); return x.pathname + x.search; } catch { return u; } };
+    const link = m?.link ? `<td class="linkcell mono" title="${esc(m.link)}">${esc(shortLink(m.link)).replace(/(framer_variant=[A-Za-z0-9_-]+)/, "<mark>$1</mark>")}</td>` : metaOn ? `<td class="muted">—</td>` : "";
+    const allSt = Object.values(a.byPage).reduce((acc, s) => ({ visitors: acc.visitors + s.visitors, submitters: acc.submitters + s.submitters }), { visitors: 0, submitters: 0 });
+    return `<tr><td>${adCell(a)}</td><td class="num">${fmt(a.total)}</td><td><span class="vchip"><i class="dot" style="--c:${pageColor(ev, top.pageId)}"></i>${esc(top.label)}</span></td><td>${cv(allSt)}</td>${link}</tr>`;
+  }).join("");
+  const forcedBlock = forced.length ? `<details class="more" ${av.forcedShare >= 0.05 ? "open" : ""}>
+      <summary>Anuncios con link forzado (${fmt(forced.length)}) · ${fmt(forcedVisitors)} visitantes que no entran al test</summary>
+      <p class="small ink-2">Estos anuncios tienen <span class="mono">framer_variant</span> en el link: todos ven la misma versión. Hay que sacarlo en Meta para que entren al test.</p>
+      <div class="tablewrap"><table class="adtab"><thead><tr><th>Anuncio</th><th>Visitantes</th><th>Siempre ve</th><th>Formulario</th>${metaOn ? "<th>Link en Meta</th>" : ""}</tr></thead><tbody>${forcedRows}</tbody></table></div>
+    </details>` : "";
+  return `<div class="card big">
+    <div class="card-head"><h3>Anuncio por anuncio</h3><span class="small muted">${adWindow(ev)} · Framer</span></div>
+    ${hint}
+    <p class="sublabel">En el test: mandan gente a las dos versiones (${fmt(inTest.length)})</p>
+    ${inTest.length ? `<div class="tablewrap"><table class="adtab"><thead><tr><th>Anuncio</th><th>Visitantes</th><th>Reparto</th>${pages.slice(0, 2).map((p) => `<th><span class="vchip"><i class="dot" style="--c:${pageColor(ev, p.pageId)}"></i>${esc(p.label)}</span></th>`).join("")}<th>Resultado</th></tr></thead><tbody>${testRows}</tbody></table></div>`
+      : `<p class="muted">Ningún anuncio está mandando gente a las dos versiones.</p>`}
+    ${forcedBlock}
+    <p class="note">"Mejor" = 95% de confianza; "Tendencia" = entre 80% y 95%. Solo se comparan las visitas que entraron al test.</p>
+  </div>`;
+}
+
+function versionShowcase(ev, t) {
+  const list = t ? t.variants : (ev.versions || []);
+  return `<div class="vshow">${list.map((v) => {
+    const meta = versionMeta(ev, v.pageId);
+    return `<div class="vs" style="--c:${pageColor(ev, v.pageId)}">
+      <a class="vs-shot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener" title="Ver captura completa"><img src="${shotUrl(v.pageId)}" alt="${esc(v.label)} en celular" onerror="this.parentNode.style.display='none'"></a>
+      <div class="vs-body">
+        <div class="sb-name"><i class="dot"></i>${esc(v.label)}${v.isControl ? ` <span class="muted small">(original)</span>` : ""}</div>
+        ${meta.desc ? `<p class="vdesc">${esc(meta.desc)}</p>` : ""}
+        <div class="links"><a href="${ev.editorUrl}?node=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Abrir en Framer ↗</a><a href="${ev.publicUrl}?framer_variant=${encodeURIComponent(v.pageId)}" target="_blank" rel="noopener">Ver esta versión ↗</a></div>
+      </div></div>`;
+  }).join("")}</div>`;
+}
+
+function abTab(ev) {
   const seg = segOf();
-  const f = ev.funnel[seg];
-  const pathsInfo = `Landing ${esc(ev.paths.landing)}`;
-  return `
-    ${plainSummary(ev)}
-    ${kpis(ev)}
-    ${section(1, "Embudo", `De visitante a confirmado. Cada columna es un paso; el color muestra qué tan bien pasa la gente al siguiente (verde bien, rojo mal). ${pathsInfo}.`,
-      `<div class="card big">${funnelView(f)}</div>`)}
-    ${section(2, "Anuncios de esta landing", "Qué anuncios traen gente que sí llena el formulario.",
-      `<div class="card big">${ev.diagnosis ? adsChart(ev) : ""}</div>`)}
-    ${section(3, "Test A/B", `Dos versiones de la misma landing, mostradas a personas distintas para ver cuál convierte más. Con ${prefs.paid ? "solo tráfico pago" : "todas las fuentes"}.`,
-      abView(ev))}
-    ${emailView(ev)}
-    ${ev.diagnosis ? diagnosisView(ev) : ""}
-    ${ev.experiment ? section("3b", "A/B medido por Highway", "Nuestra propia medición: qué versión vio cada persona, qué tocó y si se anotó. Cuenta solo a quienes pasaron por el reparto 50/50 (no a los que llegan con un link que fuerza la versión).", expView(ev.experiment)) : ""}
-    ${section(6, "Visitantes y conversión por día", "Cada columna es un día. Sirve para ver si algo subió o bajó después de un cambio.",
-      `<div class="grid g2">
-        <div class="card big"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
-        <div class="card big"><div class="card-head"><h3>% que llena el formulario</h3><span class="small muted">días con 20+ visitantes</span></div><div class="chart" id="c-rate"></div></div>
-      </div>`)}
-    ${section(7, "Fuentes de tráfico", "De dónde llega la gente.",
-      `<div class="card big">${sourcesTable(ev.funnel.sources)}</div>`)}
-    <div class="card glossary"><h3>Glosario</h3><dl>
+  const [latest, ...older] = ev.tests;
+  if (!latest) {
+    return `<div class="stack-v">
+      <div class="banner mute"><strong>${esc(ev.name)} no tiene un test A/B activo</strong><p>Todo el tráfico ve la misma versión. Abajo, qué anuncios traen gente y cuántos se anotan.</p></div>
+      ${versionShowcase(ev, null)}${adRowsTable(ev)}</div>`;
+  }
+  const prev = analyzeTest(latest, seg).status === "collecting" ? older.find((t) => analyzeTest(t, seg).status !== "collecting") : null;
+  const olderBlock = older.length ? `<details class="more"><summary>Tests anteriores (${older.length})</summary>
+    ${prev ? `<p class="sublabel">Último test con resultados · ${dateFmt(prev.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(prev.lastTs, { day: "numeric", month: "short" })}</p>${testBlock(ev, prev, seg, true)}` : ""}
+    ${older.filter((t) => t !== prev).map((t) => `<p class="sublabel">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short" })} · ${fmt(t.totalVisitors)} visitantes</p>${variantDetailTable(t, seg)}`).join("")}
+  </details>` : "";
+  return `<div class="stack-v">
+    ${scoreboard(ev, latest, seg)}
+    ${allocCard(ev)}
+    ${flowCard(ev)}
+    ${adRowsTable(ev)}
+    <div class="sec-sub"><h3>Las versiones del test</h3></div>
+    ${versionShowcase(ev, latest)}
+    ${olderBlock}
+    ${ev.experiment ? `<details class="more"><summary>Medición propia de Highway (beta)</summary>${expView(ev.experiment)}</details>` : ""}
+  </div>`;
+}
+
+/* ---------- Pestaña Anuncios: rendimiento con datos de Meta ---------- */
+function metaAdsCard(ev) {
+  if (!data.meta?.connected) {
+    return `<div class="connect"><strong>Conectá Meta para ver gasto y costo por formulario de cada anuncio</strong>
+      <ol><li>Desde Meta Business, crear un token de solo lectura con el permiso <span class="mono">ads_read</span> (lo hace quien administra la cuenta publicitaria).</li>
+      <li>En Vercel, agregar la variable <span class="mono">META_ACCESS_TOKEN</span> con ese token.</li>
+      <li>Hacer un Redeploy. Los nombres, miniaturas, gasto y costo por formulario aparecen solos en todo el dashboard.</li></ol></div>`;
+  }
+  const ads = (ev.diagnosis?.ads || []).filter((a) => metaOf(a.ad)).slice(0, 30);
+  if (!ads.length) return `<p class="ink-2">${data.meta.error ? `No se pudo leer Meta: ${esc(data.meta.error)}` : "Meta está conectado, pero no devolvió datos para los anuncios de esta landing."}</p>`;
+  const rows = ads.map((a) => {
+    const m = metaOf(a.ad), l = adLabel(a.ad);
+    return `<tr><td><div class="adcell">${l.thumb ? `<img src="${esc(l.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="adph" aria-hidden="true">AD</span>`}<div><b title="${esc(l.name)}">${esc(l.name)}</b><span>${esc(l.sub || "")}</span></div></div></td>
+      <td class="num">${money(m.spend)}</td><td class="num">${fmt(m.impressions)}</td><td class="num">${m.ctr == null ? "—" : pct(m.ctr / 100)}</td><td class="num">${fmt(m.linkClicks)}</td>
+      <td class="num">${fmt(a.visitors)}</td><td class="num">${fmt(a.submitters)}</td><td class="num">${a.submitters ? money(m.spend / a.submitters) : "—"}</td>
+      <td>${m.forcedVariant ? chip("bad", "Forzado") : chip("mute", "OK")}</td></tr>`;
+  }).join("");
+  return `<div class="tablewrap"><table class="adtab"><thead><tr><th>Anuncio</th><th>Gasto</th><th>Impresiones</th><th>CTR</th><th>Clics al link</th><th>Visitas medidas</th><th>Formularios</th><th>Costo por formulario</th><th>Link</th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${data.meta.error ? `<p class="small err">Algunos anuncios no se pudieron leer: ${esc(data.meta.error)}</p>` : ""}
+    <p class="note">Gasto, impresiones, CTR y clics vienen de Meta; visitas y formularios, de la landing. Costo por formulario = gasto ÷ formularios.</p>`;
+}
+
+const TABS = [["ab", "Test A/B y anuncios"], ["resumen", "Resumen y embudo"], ["anuncios", "Anuncios"], ["emails", "Emails"], ["diag", "Diagnóstico"]];
+const tabsBar = () => `<nav class="tabs v3" role="tablist" aria-label="Secciones">${TABS.map(([k, l]) =>
+  `<button type="button" role="tab" data-tab="${k}" aria-selected="${prefs.tab === k}">${l}</button>`).join("")}</nav>`;
+
+const glossary = () => `<div class="card glossary"><h3>Glosario</h3><dl>
       <dt>Conversión</dt><dd>De las personas de un paso, cuántas pasan al siguiente.</dd>
       <dt>Test A/B</dt><dd>Dos versiones de la landing. Gana la que convierte más con confianza suficiente (95%).</dd>
+      <dt>Link forzado</dt><dd>Un anuncio con <span class="mono">framer_variant</span> en la URL: todos ven la misma versión y no entran al test.</dd>
       <dt>Tráfico desparejo</dt><dd>El tráfico no se divide como lo configuraste, así que la comparación no sirve.</dd>
       <dt>Apertura / Clics</dt><dd>Qué porcentaje de los destinatarios abrió el mail o hizo clic en un enlace.</dd>
       <dt>Bajas</dt><dd>Personas que pidieron dejar de recibir la secuencia.</dd>
       <dt>Tráfico pago</dt><dd>Visitas que llegan con parámetros de Meta (Facebook e Instagram).</dd>
     </dl></div>`;
+
+function eventView(ev) {
+  const pathsInfo = `Landing ${esc(ev.paths.landing)}`;
+  if (prefs.tab === "resumen") return `
+    ${plainSummary(ev)}
+    ${kpis(ev)}
+    ${section(null, "Embudo", `De visitante a confirmado. Cada columna es un paso; el color muestra qué tan bien pasa la gente al siguiente (verde bien, rojo mal). ${pathsInfo}.`,
+      `<div class="card big">${funnelView(ev.funnel[segOf()])}</div>`)}
+    ${section(null, "Visitantes y conversión por día", "Cada columna es un día. Sirve para ver si algo subió o bajó después de un cambio.",
+      `<div class="grid g2">
+        <div class="card big"><div class="card-head"><h3>Visitantes por día</h3></div><div class="chart" id="c-visitors"></div></div>
+        <div class="card big"><div class="card-head"><h3>% que llena el formulario</h3><span class="small muted">días con 20+ visitantes</span></div><div class="chart" id="c-rate"></div></div>
+      </div>`)}
+    ${section(null, "Fuentes de tráfico", "De dónde llega la gente.", `<div class="card big">${sourcesTable(ev.funnel.sources)}</div>`)}`;
+  if (prefs.tab === "anuncios") return `
+    ${section(null, "Qué anuncios traen gente que se anota", "De las personas que llegaron desde cada anuncio, cuántas llenaron el formulario.",
+      `<div class="card big">${ev.diagnosis ? adsChart(ev) : ""}</div>`)}
+    ${section(null, "Gasto y costo por formulario", "Lo que cuesta cada anuncio y cuánto sale cada persona que se anota.", `<div class="card big">${metaAdsCard(ev)}</div>`)}`;
+  if (prefs.tab === "emails") return emailView(ev);
+  if (prefs.tab === "diag") return `${ev.diagnosis ? diagnosisView(ev) : ""}${glossary()}`;
+  return abTab(ev);
 }
 
 function drawCharts(ev) {
+  const fl = document.getElementById("c-flow");
+  if (fl) { const m = flowModel(ev); if (m) drawFlow(fl, m); }
   const seg = segOf();
   const rows = ev.funnel.daily;
   const cv = document.getElementById("c-visitors"), cr = document.getElementById("c-rate");
@@ -1362,6 +1799,7 @@ function render() {
       </div>
     </header>
     ${data ? eventCards() : ""}
+    ${ev ? tabsBar() : ""}
     ${lastError ? `<div class="card" style="margin-bottom:16px"><p class="err">No se pudieron cargar los datos: ${esc(lastError)}</p></div>` : ""}
     ${ev ? eventView(ev) : loading ? `<div class="loading">Consultando la analítica de Framer… (puede tardar unos segundos)</div>` : ""}
     ${data ? `<div class="notes">
@@ -1373,6 +1811,7 @@ function render() {
 
   app.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => { prefs.days = +b.dataset.days; savePrefs(); load(); }));
   app.querySelectorAll("[data-ev]").forEach((b) => b.addEventListener("click", () => { prefs.event = b.dataset.ev; savePrefs(); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+  app.querySelectorAll("[data-tab]").forEach((b) => b.addEventListener("click", () => { prefs.tab = b.dataset.tab; savePrefs(); render(); }));
   const paid = document.getElementById("paid");
   if (paid) paid.addEventListener("change", () => { prefs.paid = paid.checked; savePrefs(); render(); });
   const refresh = document.getElementById("refresh");

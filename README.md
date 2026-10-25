@@ -23,6 +23,8 @@ Funnels y tests A/B de las landings de eventos (Hollywood, Houston, Orlando), co
 | `FRAMER_API_KEY` | API key del proyecto Eventos (Framer → Site Settings → General → API Keys) |
 | `FRAMER_PROJECT_ID` | `0wBFGvK3jgiViVD7lN3n` |
 | `BREVO_API_KEY` | (opcional) API key de Brevo con permiso de lectura de campañas. Sin esta variable, la sección de secuencias de email muestra cómo conectarla. |
+| `META_ACCESS_TOKEN` | (opcional) Token de solo lectura de Meta (permiso `ads_read`, idealmente de un usuario del sistema que no vence). Suma nombre, miniatura, link, gasto y costo por formulario de cada anuncio. |
+| `META_API_VERSION` | (opcional) Versión de la Graph API. Por defecto `v23.0`. |
 | `DASHBOARD_USERS` | Usuarios habilitados, en JSON: `{"mail@dominio.com": "salt:hash"}` |
 | `DASHBOARD_SECRET` | Clave para firmar las sesiones. Cambiarla cierra la sesión de todos |
 
@@ -37,6 +39,10 @@ Cada push a `main` se despliega solo en Vercel.
 ## Secuencias de email (Brevo)
 
 Cada evento toma sus campañas por el nombre del mail (`emailMatch` en `lib/metrics.js`, p. ej. `HW G07 …` para Hollywood). Para cada mail muestra destinatarios, apertura, clicks y bajas, y genera ideas según reglas simples en `lib/brevo.js` (asunto, llamado a la acción, bajas, frecuencia, horario y mails programados después del evento).
+
+## Anuncios de Meta
+
+Con `META_ACCESS_TOKEN`, el dashboard pide a la Graph API los anuncios que aparecen en `utm_content` de las landings (los 150 con más visitas): nombre, campaña, miniatura, link de destino, gasto, impresiones, CTR y clics (`lib/meta.js`). No hace falta el ID de la cuenta publicitaria. Si el link de un anuncio tiene `framer_variant`, se marca como link forzado. Gasto y costo por formulario están en la pestaña Anuncios; en la pestaña del test A/B se usan el nombre y la miniatura.
 
 ## Errores y mejoras de la landing
 
