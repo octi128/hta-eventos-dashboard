@@ -640,6 +640,20 @@
   .rep-foot { margin-top: 18px; display: flex; justify-content: flex-end; }
   .rep-foot .btn { font-weight: 600; }
 
+  /* Ver anuncio / copiar ID */
+  .adlink { font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .adlink:hover { text-decoration: underline; }
+  .adcell .adlink { display: inline-block; margin-top: 2px; }
+  .best-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 6px; }
+  .best-actions .adlink { font-size: 13px; padding: 5px 10px; border-radius: 8px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--good) 35%, transparent); }
+  .best-actions .mono { font-size: 11px; }
+  .adcopy { appearance: none; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; padding: 4px 9px; border-radius: 8px;
+    background: transparent; color: var(--ink-2); border: 1px solid var(--border); }
+  .adcopy:hover { color: var(--ink); border-color: var(--accent); }
+  a.src-n { color: inherit; text-decoration: none; }
+  a.src-n:hover { color: var(--accent); text-decoration: underline; }
+  .sec-head p a { color: var(--accent); font-weight: 600; }
+
   /* Detalle de una landing */
   .detail-head { margin-top: 48px; padding-top: 28px; border-top: 2px solid var(--grid); scroll-margin-top: 64px; }
   .detail-head h2 { font-size: 26px; }
@@ -1176,7 +1190,7 @@ function adsChart(ev) {
     const name = adLabel(a.ad).name;
     const tip = `<b>${esc(name)}</b><br>${fmt(a.visitors)} visitantes · ${fmt(a.submitters)} formularios<br>${fmt(a.confirmed)} confirmaciones`;
     return `<div class="hbar" data-tip="${esc(tip)}">
-      <div class="hbar-l2"><div class="hbar-name"><span class="${metaOf(a.ad) ? "" : "mono"}" title="${esc(name)}">${esc(name)}</span>${tag}</div><span class="muted small">${fmt(a.visitors)} visitantes</span></div>
+      <div class="hbar-l2"><div class="hbar-name"><span class="${metaOf(a.ad) ? "" : "mono"}" title="${esc(name)}">${esc(name)}</span>${tag}</div><span class="muted small">${fmt(a.visitors)} visitantes ${adLink(a.ad)}</span></div>
       <div class="hbar-t"><i class="${tone}" style="width:${(r / max) * 100}%"></i></div>
       <div class="hbar-v num">${pct(r)}</div>
     </div>`;
@@ -1242,6 +1256,21 @@ function adLabel(id) {
   return { name: `Anuncio …${id.slice(-8)}`, sub: `ID ${id}` };
 }
 
+// "Ver anuncio": abre ese anuncio en el Administrador de anuncios, donde se ve el video o la imagen (hace falta
+// entrar con un usuario de Facebook que tenga acceso a la cuenta). La Biblioteca de anuncios no sirve acá: usa
+// otro número de ID, no el del anuncio que llega en utm_content.
+function adUrl(id) {
+  if (!/^\d{6,20}$/.test(id || "")) return null;
+  const act = data.adsAccountId ? `act=${encodeURIComponent(String(data.adsAccountId).replace(/^act_/, ""))}&` : "";
+  return `https://adsmanager.facebook.com/adsmanager/manage/ads/edit?${act}selected_ad_ids=${id}`;
+}
+const adLink = (id, text = "Ver anuncio ↗") => {
+  const u = adUrl(id);
+  return u ? `<a class="adlink" href="${u}" target="_blank" rel="noopener" title="Abrir el anuncio ${esc(id)} en el Administrador de anuncios">${text}</a>` : "";
+};
+const adCopy = (id) => /^\d{6,20}$/.test(id || "") ? `<button type="button" class="adcopy" data-copy="${esc(id)}" title="Copiar el ID ${esc(id)}">Copiar ID</button>` : "";
+// Todos los anuncios activos de HTA en la Biblioteca de anuncios (búsqueda por nombre).
+const AD_LIBRARY_URL = "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&media_type=all&q=%22Highway%20Trading%20Academy%22&search_type=keyword_exact_phrase";
 
 /* Flujo anuncio → versión (sankey de dos columnas) */
 function flowModel(ev) {
@@ -1366,7 +1395,7 @@ function adVariantTable(ev) {
   const adCell = (a) => {
     const l = adLabel(a.ad);
     return `<div class="adcell">${l.thumb ? `<img src="${esc(l.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="adph" aria-hidden="true">AD</span>`}
-      <div><b title="${esc(l.name)}">${esc(l.name)}</b><span title="${esc(l.sub || "")}">${esc(l.sub || "")}</span></div></div>`;
+      <div><b title="${esc(l.name)}">${esc(l.name)}</b><span title="${esc(l.sub || "")}">${esc(l.sub || "")}</span>${adLink(a.ad)}</div></div>`;
   };
   const split = (a) => {
     const segs = [
@@ -1447,7 +1476,7 @@ function metaAdsCard(ev) {
   if (!ads.length) return `<p class="ink-2">${data.meta.error ? `No se pudo leer Meta: ${esc(data.meta.error)}` : "Meta está conectado, pero no devolvió datos para los anuncios de esta landing."}</p>`;
   const rows = ads.map((a) => {
     const m = metaOf(a.ad), l = adLabel(a.ad);
-    return `<tr><td><div class="adcell">${l.thumb ? `<img src="${esc(l.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="adph" aria-hidden="true">AD</span>`}<div><b title="${esc(l.name)}">${esc(l.name)}</b><span>${esc(l.sub || "")}</span></div></div></td>
+    return `<tr><td><div class="adcell">${l.thumb ? `<img src="${esc(l.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="adph" aria-hidden="true">AD</span>`}<div><b title="${esc(l.name)}">${esc(l.name)}</b><span>${esc(l.sub || "")}</span>${adLink(a.ad)}</div></div></td>
       <td class="num">${money(m.spend)}</td><td class="num">${fmt(m.impressions)}</td><td class="num">${m.ctr == null ? "—" : pct(m.ctr / 100)}</td><td class="num">${fmt(m.linkClicks)}</td>
       <td class="num">${fmt(a.visitors)}</td><td class="num">${fmt(a.submitters)}</td><td class="num">${a.submitters ? money(m.spend / a.submitters) : "—"}</td>
       <td>${m.forcedVariant ? chip("bad", "Forzado") : chip("mute", "OK")}</td></tr>`;
@@ -1618,7 +1647,7 @@ function diagnosisView(ev) {
 function adsTable(d) {
   return `<div class="tablewrap"><table>
     <thead><tr><th>Anuncio</th><th>Campaña</th><th>Visitantes</th><th>Formulario</th><th>Conv.</th><th>Confirmación</th></tr></thead>
-    <tbody>${d.ads.map((a) => `<tr><td><span class="mono">${esc(a.ad)}</span></td><td><span class="mono muted">${esc(shortId(a.campaign))}</span></td>
+    <tbody>${d.ads.map((a) => `<tr><td><span class="mono">${esc(a.ad)}</span> ${adLink(a.ad, "↗")}</td><td><span class="mono muted">${esc(shortId(a.campaign))}</span></td>
       <td>${fmt(a.visitors)}</td><td>${fmt(a.submitters)}</td><td>${pct(crate(a))}</td><td>${fmt(a.confirmed)}</td></tr>`).join("")}</tbody></table></div>`;
 }
 
@@ -1737,8 +1766,9 @@ function leaderOf(t, seg) {
 function bestAdLine(ev, best, n) {
   if (!best) return `<div class="best none"><span class="k">Mejor anuncio</span><span>Todavía ningún anuncio llegó a ${MIN_AD} visitas${n ? " acá" : ""}.</span></div>`;
   const l = adLabel(best.ad);
+  const actions = adUrl(best.ad) ? `<div class="best-actions">${adLink(best.ad)}${adCopy(best.ad)}<span class="mono muted">ID ${esc(best.ad)}</span></div>` : "";
   return `<div class="best"><span class="k">Mejor anuncio</span><b title="${esc(l.name)}">${esc(l.name)}</b>
-    <span><b class="num">${pct(rate(best.submitters, best.visitors))}</b> ${esc(goalText(ev))} · ${fmt(best.submitters)} de ${fmt(best.visitors)} visitas</span></div>`;
+    <span><b class="num">${pct(rate(best.submitters, best.visitors))}</b> ${esc(goalText(ev))} · ${fmt(best.submitters)} de ${fmt(best.visitors)} visitas</span>${actions}</div>`;
 }
 
 function srcList(ev, list, n = 3) {
@@ -1747,7 +1777,10 @@ function srcList(ev, list, n = 3) {
   const rows = list.slice(0, n).map((x) => {
     const l = adLabel(x.ad);
     const tip = `<b>${esc(l.name)}</b><br>${fmt(x.visitors)} visitas (${pct(x.visitors / total, 0)})<br>${fmt(x.submitters)} ${esc(goalText(ev))} (${pct(rate(x.submitters, x.visitors))})`;
-    return `<li data-tip="${esc(tip)}"><span class="src-n" title="${esc(l.name)}">${esc(l.name)}</span>
+    const u = adUrl(x.ad);
+    const name = u ? `<a class="src-n" href="${u}" target="_blank" rel="noopener" title="Ver ${esc(l.name)} en el Administrador de anuncios">${esc(l.name)} ↗</a>`
+      : `<span class="src-n" title="${esc(l.name)}">${esc(l.name)}</span>`;
+    return `<li data-tip="${esc(tip)}">${name}
       <span class="src-bar"><i style="width:${Math.max(2, (x.visitors / total) * 100)}%"></i></span>
       <span class="src-v num">${pct(x.visitors / total, 0)} · ${pct(rate(x.submitters, x.visitors))}</span></li>`;
   }).join("");
@@ -1852,7 +1885,8 @@ function reportCard(ev) {
 function reportSection() {
   return `<section class="sec" id="s-landings">
     <header class="sec-head"><div><h2>Landings: resultados y tests A/B</h2>
-      <p>Cada landing con sus números, qué versión funciona mejor y de qué anuncios viene la gente. En los tests A/B solo cuentan las visitas que pasaron por el reparto 50/50.</p></div></header>
+      <p>Cada landing con sus números, qué versión funciona mejor y de qué anuncios viene la gente. En los tests A/B solo cuentan las visitas que pasaron por el reparto 50/50.
+      "Ver anuncio" abre el anuncio en el Administrador de anuncios. <a href="${AD_LIBRARY_URL}" target="_blank" rel="noopener">Todos los anuncios activos de HTA en la Biblioteca ↗</a></p></div></header>
     <div class="reports">${landingOrder(data.events).map(reportCard).join("")}</div>
   </section>`;
 }
@@ -1958,6 +1992,13 @@ function render() {
   bindTips(app);
   if (ev) drawCharts(ev);
 }
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest?.("[data-copy]");
+  if (!b) return;
+  const done = () => { const t = b.textContent; b.textContent = "¡Copiado!"; setTimeout(() => { b.textContent = t; }, 1400); };
+  navigator.clipboard?.writeText(b.dataset.copy).then(done, () => window.prompt("Copiá el ID del anuncio:", b.dataset.copy));
+});
 
 let rz;
 addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { const ev = data && (data.events.find((e) => e.key === prefs.event) || data.events[0]); if (ev) drawCharts(ev); }, 150); });

@@ -18,7 +18,8 @@ export default async function handler(req, res) {
 
   try {
     const data = await getMetrics({ projectId: FRAMER_PROJECT_ID, apiKey: FRAMER_API_KEY, days, brevoKey: process.env.BREVO_API_KEY,
-      metaToken: process.env.META_ACCESS_TOKEN, metaVersion: process.env.META_API_VERSION });
+      metaToken: process.env.META_ACCESS_TOKEN, metaVersion: process.env.META_API_VERSION,
+      adsAccountId: process.env.META_AD_ACCOUNT_ID });
     cache.set(days, { at: Date.now(), data });
     return res.status(200).json(data);
   } catch (err) {
