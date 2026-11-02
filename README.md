@@ -44,6 +44,14 @@ Cada evento toma sus campañas por el nombre del mail (`emailMatch` en `lib/metr
 
 Con `META_ACCESS_TOKEN`, el dashboard pide a la Graph API los anuncios que aparecen en `utm_content` de las landings (los 150 con más visitas): nombre, campaña, miniatura, link de destino, gasto, impresiones, CTR y clics (`lib/meta.js`). No hace falta el ID de la cuenta publicitaria. Si el link de un anuncio tiene `framer_variant`, se marca como link forzado. Gasto y costo por formulario están en la pestaña Anuncios; en la pestaña del test A/B se usan el nombre y la miniatura.
 
+## Landings y tests A/B
+
+Arriba de todo hay una tarjeta por landing (en `lib/metrics.js`, `EVENTS`): números del período, la versión que va ganando y, para cada versión, de qué anuncios viene la gente y cuál es el mejor anuncio (la mayor conversión entre los que tienen 20 visitas o más). Abajo queda el detalle completo de la landing elegida.
+
+- Los tests de Hollywood y Houston se leen desde el 29/10 (`AB_CLEAN_FROM`): desde ese día los anuncios usan el link general y las versiones Control tienen el diseño nuevo. Lo anterior queda como historial.
+- Una landing cuya conversión no es un formulario (por ejemplo New Reach, que lleva a la agenda) usa `goal` (la página a la que tiene que llegar la persona) y `steps` (los nombres de los pasos).
+- Las capturas de cada versión se sacan con `scripts/capture-variants.js`. Si una página es demasiado larga para Framer, usar `scripts/capture-live.js <ruta> <id>...` (necesita Playwright).
+
 ## Errores y mejoras de la landing
 
 Lo que el dashboard no puede medir (un texto roto, un botón difícil de encontrar) se agrega en `notes` de cada evento en `lib/metrics.js`. Aparece en el diagnóstico junto con lo que sí se detecta solo.
