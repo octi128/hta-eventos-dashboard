@@ -787,6 +787,18 @@ function sampleNeeded(p1, p2) {
   return isFinite(n) ? Math.ceil(n) : null;
 }
 
+// Conversión "segura" de un anuncio (intervalo de Wilson al 95%): premia la tasa alta solo si hay visitas suficientes
+// para confiar en ella. El mejor anuncio es el de límite inferior más alto; el más flojo, el de límite superior más bajo.
+function wilson(s, n, sign) {
+  if (!n) return sign < 0 ? 0 : 1;
+  const z = 1.96, p = s / n, z2 = z * z;
+  return (p + z2 / (2 * n) + sign * z * Math.sqrt((p * (1 - p) + z2 / (4 * n)) / n)) / (1 + z2 / n);
+}
+const sureLow = (x) => wilson(x.submitters, x.visitors, -1);
+const sureHigh = (x) => wilson(x.submitters, x.visitors, 1);
+const bestAdOf = (list) => list.slice().sort((a, b) => sureLow(b) - sureLow(a))[0] || null;
+const worstAdOf = (list) => list.slice().sort((a, b) => sureHigh(a) - sureHigh(b))[0] || null;
+
 const COLLECT_MIN = 1000; // visitantes del test antes de leer resultados (cuenta regresiva)
 
 function analyzeTest(t, seg) {
@@ -1071,7 +1083,7 @@ function buildInsights(ev) {
         (s.device === "mobile" && s.browser === "chrome" ? "Mayormente Android y el navegador interno de Facebook/Instagram: probá el formulario completo en un Android desde un anuncio." : "Probá el formulario completo en ese dispositivo."),
     });
   }
-  const bestAd = d.ads.filter((a) => a.visitors >= 50 && !a.flagged).sort((a, b) => crate(b) - crate(a))[0];
+  const bestAd = bestAdOf(d.ads.filter((a) => a.visitors >= 50 && !a.flagged));
   if (bestAd && crate(bestAd) > crate(d.clean)) {
     out.push({
       kind: "good", tag: "Mejor anuncio",
@@ -1132,10 +1144,10 @@ function plainSummary(ev) {
   const b = bottleneck(f);
   if (b) lines.push(`Lo que más frena es <b>${b.from} → ${b.to}</b>: pasa solo el ${pct(b.r)} de la gente.`);
 
-  const adsOk = (ev.diagnosis?.ads || []).filter((a) => a.visitors >= 50 && !a.flagged).sort((x, y) => crate(y) - crate(x));
+  const adsOk = (ev.diagnosis?.ads || []).filter((a) => a.visitors >= 50 && !a.flagged);
   if (adsOk.length) {
-    const best = adsOk[0];
-    const worst = adsOk.length > 1 ? adsOk[adsOk.length - 1] : null;
+    const best = bestAdOf(adsOk);
+    const worst = adsOk.length > 1 ? worstAdOf(adsOk.filter((a) => a !== best)) : null;
     lines.push(`El mejor anuncio convierte <b>${pct(crate(best))}</b>${worst ? `; el más flojo, ${pct(crate(worst))}` : ""}.`);
   }
   const flaggedCamps = (ev.diagnosis?.campaigns || []).filter((c) => c.flagged).length;
@@ -1178,11 +1190,14 @@ function kpis(ev) {
 function adsChart(ev) {
   const d = ev.diagnosis;
   if (!d || !d.ads.length) return `<p class="muted">No hay anuncios con tráfico en este período.</p>`;
-  const list = d.ads.filter((a) => a.visitors >= 10).sort((a, b) => (crate(b) ?? 0) - (crate(a) ?? 0)).slice(0, 10);
+  const byRate = (a, b) => (crate(b) ?? 0) - (crate(a) ?? 0);
+  let list = d.ads.filter((a) => a.visitors >= 10).sort(byRate).slice(0, 10);
   if (!list.length) return `<p class="muted">Ningún anuncio llegó a 10 visitantes en este período.</p>`;
+  // Mejor y más flojo con datos firmes (50+ visitas); si quedaron fuera del top 10 por tasa, se suman igual.
+  const valid = d.ads.filter((a) => !a.flagged && a.visitors >= 50);
+  const bestA = bestAdOf(valid), worstA = valid.length > 1 ? worstAdOf(valid.filter((a) => a !== bestA)) : null;
+  for (const x of [bestA, worstA]) if (x && !list.includes(x)) list = [...list.slice(0, 9), x].sort(byRate);
   const max = Math.max(...list.map((a) => crate(a) || 0), 0.0001);
-  const valid = list.filter((a) => !a.flagged && a.visitors >= 50);
-  const bestA = valid[0], worstA = valid.length > 1 ? valid[valid.length - 1] : null;
   return `<div class="hbars ads">${list.map((a) => {
     const r = crate(a) || 0;
     const tone = a.flagged ? "bad" : a === bestA ? "good" : a === worstA ? "warn" : "info";
@@ -1195,7 +1210,7 @@ function adsChart(ev) {
       <div class="hbar-v num">${pct(r)}</div>
     </div>`;
   }).join("")}</div>
-  <p class="note">Conversión = de las personas que llegaron desde el anuncio, cuántas llenaron el formulario. Verde: mejor anuncio. Amarillo: el más flojo. Rojo: campaña con problemas.</p>`;
+  <p class="note">Conversión = de las personas que llegaron desde el anuncio, cuántas llenaron el formulario. Verde: mejor anuncio. Amarillo: el más flojo. Rojo: campaña con problemas. El mejor y el más flojo se eligen entre los que tienen 50 visitas o más, pesando la tasa y la cantidad de visitas: un anuncio con pocas visitas y tasa alta todavía no es confiable.</p>`;
 }
 
 /* ---------- 3. Test A/B ---------- */
@@ -1729,10 +1744,9 @@ function landingOrder(events) {
   return events.slice().sort((a, b) => { const ra = rank(a), rb = rank(b); return ra[0] - rb[0] || ra[1] - rb[1]; });
 }
 
-// El mejor anuncio: la mayor conversión entre los que tienen suficientes visitas.
+// El mejor anuncio: el que convierte más con datos firmes (tasa alta y visitas suficientes).
 function bestOf(list, min = MIN_AD) {
-  return list.filter((x) => x.visitors >= min)
-    .sort((a, b) => rate(b.submitters, b.visitors) - rate(a.submitters, a.visitors) || b.visitors - a.visitors)[0] || null;
+  return bestAdOf(list.filter((x) => x.visitors >= min));
 }
 
 // Anuncios que llevaron gente a una versión del test (solo visitas que entraron al test).
@@ -1886,7 +1900,7 @@ function reportSection() {
   return `<section class="sec" id="s-landings">
     <header class="sec-head"><div><h2>Landings: resultados y tests A/B</h2>
       <p>Cada landing con sus números, qué versión funciona mejor y de qué anuncios viene la gente. En los tests A/B solo cuentan las visitas que pasaron por el reparto 50/50.
-      "Ver anuncio" abre el anuncio en el Administrador de anuncios. <a href="${AD_LIBRARY_URL}" target="_blank" rel="noopener">Todos los anuncios activos de HTA en la Biblioteca ↗</a></p></div></header>
+      "Mejor anuncio" es el que convierte más con visitas suficientes para confiar en el número. "Ver anuncio" abre el anuncio en el Administrador de anuncios. <a href="${AD_LIBRARY_URL}" target="_blank" rel="noopener">Todos los anuncios activos de HTA en la Biblioteca ↗</a></p></div></header>
     <div class="reports">${landingOrder(data.events).map(reportCard).join("")}</div>
   </section>`;
 }
