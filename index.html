@@ -586,6 +586,84 @@
     .flow .ns { font-size: 11px; }
     .sec-head h2 { font-size: 21px; }
   }
+
+  /* ===== Landings: una tarjeta por landing ===== */
+  .reports { display: flex; flex-direction: column; gap: 20px; }
+  .rep { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 26px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px -12px rgba(0,0,0,.12); scroll-margin-top: 72px; }
+  .rep-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .rep-kicker { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+  .rep-head h3 { font-size: 28px; letter-spacing: -0.02em; margin-top: 4px; }
+  .rep-path { font-size: 13px; color: var(--muted); text-decoration: none; }
+  .rep-path:hover { color: var(--accent); }
+  .rep-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .rk { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .rk span { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .rk b { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+  .rk small { font-size: 12px; color: var(--muted); }
+  .rep-ab { margin-top: 22px; border-top: 1px solid var(--border); padding-top: 20px; }
+  .rep-ab-head { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; justify-content: space-between; }
+  .rep-ab-head h4 { margin: 0; font-size: 18px; font-weight: 700; }
+  .rep-verdict { font-size: 16px; line-height: 1.55; margin: 8px 0 16px; }
+  .rep-vars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .rv { display: grid; grid-template-columns: 116px minmax(0, 1fr); border: 1px solid var(--border); border-top: 4px solid var(--c); border-radius: 14px; overflow: hidden; background: var(--surface); min-width: 0; }
+  .rv.win { box-shadow: 0 0 0 2px var(--good); }
+  .rv-shot { display: block; background: var(--surface-2); border-right: 1px solid var(--border); }
+  .rv-shot img { width: 100%; height: 100%; min-height: 240px; object-fit: cover; object-position: top; display: block; }
+  .rv-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .rv-name { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; }
+  .rv-desc { font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+  .rv-big { font-size: 42px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; margin-top: 6px; }
+  .rv-sub { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
+  .rv-sub b { color: var(--ink); }
+  .k { display: block; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+  .best { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; margin-top: 6px; border-radius: 10px; min-width: 0;
+    background: color-mix(in srgb, var(--good) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--good) 28%, transparent); }
+  .best .k { margin-top: 0; color: var(--good-ink); }
+  .best > b { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .best > span { font-size: 13px; color: var(--ink-2); }
+  .best.none { background: var(--surface-2); border-color: transparent; }
+  .best.none .k { color: var(--muted); }
+  .srcs { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+  .srcs li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(50px, 90px) auto; gap: 10px; align-items: center; font-size: 13px; }
+  .src-n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .src-bar { height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .src-bar i { display: block; height: 100%; border-radius: 4px; background: var(--c, var(--accent)); }
+  .src-v { color: var(--ink-2); white-space: nowrap; font-size: 12px; }
+  .src-more { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .rep-warn { margin-top: 16px; font-size: 14px; line-height: 1.5; padding: 12px 14px; border-radius: 10px;
+    background: color-mix(in srgb, var(--critical) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--critical) 26%, transparent); }
+  .rep-warn b { color: var(--critical-ink); }
+  .rep-noab { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 22px; margin-top: 22px; border-top: 1px solid var(--border); padding-top: 20px; align-items: start; }
+  .rep-one { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .rep-one .rv-shot { border: 1px solid var(--border); border-top: 4px solid var(--c); border-radius: 12px; overflow: hidden; }
+  .rep-one .rv-shot img { min-height: 200px; }
+  .rep-foot { margin-top: 18px; display: flex; justify-content: flex-end; }
+  .rep-foot .btn { font-weight: 600; }
+
+  /* Detalle de una landing */
+  .detail-head { margin-top: 48px; padding-top: 28px; border-top: 2px solid var(--grid); scroll-margin-top: 64px; }
+  .detail-head h2 { font-size: 26px; }
+  .detail-head p { color: var(--ink-2); margin-top: 4px; }
+  .detail-pick { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+  .detail-pick button { appearance: none; font: inherit; font-size: 14px; font-weight: 600; padding: 9px 14px; border-radius: 999px; cursor: pointer;
+    background: var(--surface); color: var(--ink-2); border: 1px solid var(--border); }
+  .detail-pick button:hover { border-color: var(--accent); color: var(--ink); }
+  .detail-pick button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+  @media (max-width: 860px) {
+    .rep-vars, .rep-noab { grid-template-columns: minmax(0, 1fr); }
+    .rep-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .rep { padding: 18px 16px; }
+    .rep-head h3 { font-size: 24px; }
+    .rv { grid-template-columns: 92px minmax(0, 1fr); }
+    .rv-shot img { min-height: 200px; }
+    .rv-big { font-size: 34px; }
+    .rk b { font-size: 22px; }
+    .srcs li { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
+    .src-n { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -597,12 +675,16 @@ const TOKEN_STORE = "hta-dash-token";
 const EMAIL_STORE = "hta-dash-email";
 const PREF_STORE = "hta-dash-prefs";
 const SERIES = ["var(--series-1)", "var(--series-2)", "var(--series-3)"];
-const STEP_LABELS = [
+const DEFAULT_STEPS = [
   ["visitors", "Visitantes", "vieron la landing"],
   ["submitters", "Formulario", "enviaron el formulario"],
   ["typ", "Página de gracias", "llegaron a typ-evento"],
   ["confirmed", "Confirmación", "llegaron a confirmación"],
 ];
+
+// Los nombres de los pasos cambian por landing (p. ej. New Reach: agenda y prellamadas).
+let STEP_LABELS = DEFAULT_STEPS;
+const useSteps = (ev) => { STEP_LABELS = ev?.steps ? DEFAULT_STEPS.map(([k, name, desc], i) => [k, ev.steps[i] || name, desc]) : DEFAULT_STEPS; };
 
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
@@ -708,7 +790,7 @@ function analyzeTest(t, seg) {
     return {
       kind: "wait", status: "collecting", left, total, eta,
       title: "Cuenta regresiva para las nuevas métricas",
-      body: `Todavía se están juntando visitantes. Faltan ${fmt(left)} para leer resultados${eta ? `; al ritmo actual, unos ${eta} día${eta > 1 ? "s" : ""}` : ""}.`,
+      body: `Todavía se están juntando visitantes. Faltan ${fmt(left)} para leer resultados${eta ? eta > 60 ? "; al ritmo actual tardaría más de dos meses: hace falta más tráfico" : `; al ritmo actual, unos ${eta} día${eta > 1 ? "s" : ""}` : ""}.`,
       verdict: null,
     };
   }
@@ -1024,30 +1106,6 @@ function versionMeta(ev, pageId) {
   return (ev.versions || []).find((v) => v.pageId === pageId) || {};
 }
 
-/* ---------- Selector de evento ---------- */
-function eventCards() {
-  const seg = segOf();
-  return `<div class="ev-cards">${data.events.map((e) => {
-    const f = e.funnel[seg];
-    const t = e.tests[0];
-    const a = t ? analyzeTest(t, seg) : null;
-    const st = !a ? chip("mute", "Sin test A/B")
-      : a.status === "collecting" ? chip("info", `Faltan ${fmt(a.left)} visitantes`)
-      : a.status === "broken" ? chip("bad", "Tráfico desparejo")
-      : a.status === "winner" ? chip("good", `Gana ${esc(a.leader.label)}`)
-      : a.status === "leading" ? chip("info", `${esc(a.leader.label)} va adelante`)
-      : chip("mute", "Sin datos suficientes");
-    const active = e.key === prefs.event;
-    return `<button type="button" class="ev-card ${active ? "on" : ""}" data-ev="${e.key}" aria-pressed="${active}">
-      <span class="ev-name">${esc(e.name)}</span>
-      <span class="ev-big num">${fmt(f.visitors)}</span>
-      <span class="ev-lbl">visitantes en ${data.range.days} días</span>
-      <span class="ev-row">${pct(rate(f.submitters, f.visitors))} completa el formulario</span>
-      ${st}
-    </button>`;
-  }).join("")}</div>`;
-}
-
 /* ---------- Resumen en lenguaje simple ---------- */
 function plainSummary(ev) {
   const seg = segOf();
@@ -1055,7 +1113,7 @@ function plainSummary(ev) {
   const lines = [];
   if (f.visitors) {
     const per100 = Math.round((100 * f.submitters) / f.visitors);
-    lines.push(`De cada 100 personas que llegan a la landing, <b>${per100}</b> completan el formulario.`);
+    lines.push(`De cada 100 personas que llegan a la landing, <b>${per100}</b> ${ev.goalLabel ? esc(ev.goalLabel.replace(/^va /, "van ")) : "completan el formulario"}.`);
   }
   const b = bottleneck(f);
   if (b) lines.push(`Lo que más frena es <b>${b.from} → ${b.to}</b>: pasa solo el ${pct(b.r)} de la gente.`);
@@ -1096,8 +1154,8 @@ function kpis(ev) {
   const b = bottleneck(f);
   return `<div class="kpis">
     ${kpi("Visitantes", fmt(f.visitors), "personas que llegaron a la landing", "info")}
-    ${kpi("Completaron el formulario", pct(rate(f.submitters, f.visitors)), `${fmt(f.submitters)} personas`, "info")}
-    ${kpi("Llegaron a la confirmación", fmt(f.confirmed), `${pct(rate(f.confirmed, f.visitors), 2)} de los visitantes`, "good")}
+    ${kpi(esc(stepName(ev, 1, "Completaron el formulario")), pct(rate(f.submitters, f.visitors)), `${fmt(f.submitters)} personas`, "info")}
+    ${kpi(esc(stepName(ev, 3, "Llegaron a la confirmación")), fmt(f.confirmed), `${pct(rate(f.confirmed, f.visitors), 2)} de los visitantes`, "good")}
     ${kpi("Mayor freno", b ? pct(b.r) : "—", b ? `${b.from} → ${b.to}` : "sin datos", "bad")}
   </div>`;
 }
@@ -1439,7 +1497,7 @@ function abView(ev) {
   }
   const a = analyzeTest(latest, seg);
   const olderBlock = older.length ? `<details class="more"><summary>Ver ${older.length} test${older.length > 1 ? "s" : ""} anterior${older.length > 1 ? "es" : ""}</summary>
-    ${older.map((t) => `<p class="sublabel">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short" })} · ${fmt(t.totalVisitors)} visitantes</p>${variantDetailTable(t, seg)}`).join("")}</details>` : "";
+    ${older.map((t) => `<p class="sublabel">${dateFmt(t.firstTs, { day: "numeric", month: "short" })} → ${dateFmt(t.lastTs, { day: "numeric", month: "short" })} · ${fmt(t.totalVisitors)} visitantes${t.before ? ` · antes del ${dateFmt(t.before, { day: "numeric", month: "short" })} (links forzados o diseño anterior)` : ""}</p>${variantDetailTable(t, seg)}`).join("")}</details>` : "";
   if (a.status !== "collecting") return `${forcedBanner(ev)}${testBlock(ev, latest, seg)}${flowCard(ev)}${adVariantTable(ev)}${olderBlock}`;
   // Mientras se juntan datos del test nuevo, mostramos el último test que ya tiene resultados.
   const prev = older.find((t) => analyzeTest(t, seg).status !== "collecting");
@@ -1617,14 +1675,193 @@ function expView(x) {
     <p class="note">${x.source === "propio" ? "Medición propia de Highway (script en las landings), versión por visitante desde el 25 de octubre." : "Datos de Framer, hasta que se conecte la medición propia."} Las visitas con un link que fuerza la versión no cuentan.</p></div>`;
 }
 
+/* ---------- Landings: una tarjeta por landing con resultados, versión ganadora y anuncios ---------- */
+const MIN_AD = 20; // visitas mínimas para elegir a un anuncio como el mejor
+const goalText = (ev) => ev.goalLabel || "llena el formulario";
+const stepName = (ev, i, fallback) => ev.steps?.[i] || fallback;
+
+function eventWhen(ev) {
+  if (!ev.eventDate) return ev.kind || "Landing";
+  const d = new Date(ev.eventDate + "T12:00:00-03:00");
+  const days = Math.ceil((new Date(ev.eventDate + "T23:59:59-03:00") - Date.now()) / 864e5) - 1;
+  const label = d.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short", timeZone: "America/Argentina/Buenos_Aires" });
+  const left = days > 1 ? `faltan ${days} días` : days === 1 ? "es mañana" : days === 0 ? "es hoy" : "ya pasó";
+  return `Evento · ${label} · ${left}`;
+}
+
+// Primero los eventos que vienen (el más cercano arriba), después las landings sin fecha y al final los que ya pasaron.
+function landingOrder(events) {
+  const now = Date.now();
+  const rank = (ev) => {
+    if (!ev.eventDate) return [1, 0];
+    const t = new Date(ev.eventDate + "T23:59:59-03:00").getTime();
+    return t >= now ? [0, t] : [2, -t];
+  };
+  return events.slice().sort((a, b) => { const ra = rank(a), rb = rank(b); return ra[0] - rb[0] || ra[1] - rb[1]; });
+}
+
+// El mejor anuncio: la mayor conversión entre los que tienen suficientes visitas.
+function bestOf(list, min = MIN_AD) {
+  return list.filter((x) => x.visitors >= min)
+    .sort((a, b) => rate(b.submitters, b.visitors) - rate(a.submitters, a.visitors) || b.visitors - a.visitors)[0] || null;
+}
+
+// Anuncios que llevaron gente a una versión del test (solo visitas que entraron al test).
+function variantAds(ev, pageId) {
+  return (ev.adVariants?.ads || [])
+    .map((a) => ({ ad: a.ad, visitors: 0, submitters: 0, confirmed: 0, ...(a.test?.[pageId] || {}) }))
+    .filter((x) => x.visitors > 0)
+    .sort((a, b) => b.visitors - a.visitors);
+}
+
+// Anuncios de una landing sin test, sumando las filas por anuncio.
+function landingAds(ev) {
+  const m = new Map();
+  for (const a of ev.diagnosis?.ads || []) {
+    const k = a.ad || "(sin anuncio)";
+    const x = m.get(k) || { ad: k, visitors: 0, submitters: 0, confirmed: 0 };
+    x.visitors += a.visitors; x.submitters += a.submitters; x.confirmed += a.confirmed;
+    m.set(k, x);
+  }
+  return [...m.values()].sort((a, b) => b.visitors - a.visitors);
+}
+
+function leaderOf(t, seg) {
+  const withData = t.variants.filter((v) => v[seg].visitors > 0);
+  if (withData.length < 2) return null;
+  const r = (v) => rate(v[seg].submitters, v[seg].visitors);
+  const sorted = withData.slice().sort((a, b) => r(b) - r(a));
+  return r(sorted[0]) > r(sorted[1]) ? sorted[0] : null;
+}
+
+function bestAdLine(ev, best, n) {
+  if (!best) return `<div class="best none"><span class="k">Mejor anuncio</span><span>Todavía ningún anuncio llegó a ${MIN_AD} visitas${n ? " acá" : ""}.</span></div>`;
+  const l = adLabel(best.ad);
+  return `<div class="best"><span class="k">Mejor anuncio</span><b title="${esc(l.name)}">${esc(l.name)}</b>
+    <span><b class="num">${pct(rate(best.submitters, best.visitors))}</b> ${esc(goalText(ev))} · ${fmt(best.submitters)} de ${fmt(best.visitors)} visitas</span></div>`;
+}
+
+function srcList(ev, list, n = 3) {
+  if (!list.length) return `<p class="small muted">Sin visitas con anuncio todavía.</p>`;
+  const total = list.reduce((t, x) => t + x.visitors, 0);
+  const rows = list.slice(0, n).map((x) => {
+    const l = adLabel(x.ad);
+    const tip = `<b>${esc(l.name)}</b><br>${fmt(x.visitors)} visitas (${pct(x.visitors / total, 0)})<br>${fmt(x.submitters)} ${esc(goalText(ev))} (${pct(rate(x.submitters, x.visitors))})`;
+    return `<li data-tip="${esc(tip)}"><span class="src-n" title="${esc(l.name)}">${esc(l.name)}</span>
+      <span class="src-bar"><i style="width:${Math.max(2, (x.visitors / total) * 100)}%"></i></span>
+      <span class="src-v num">${pct(x.visitors / total, 0)} · ${pct(rate(x.submitters, x.visitors))}</span></li>`;
+  }).join("");
+  const rest = list.length - n;
+  return `<ul class="srcs">${rows}</ul>${rest > 0 ? `<p class="src-more">y ${fmt(rest)} anuncio${rest === 1 ? "" : "s"} más</p>` : ""}`;
+}
+
+function repVariant(ev, t, v, a, lead, seg) {
+  const s = v[seg];
+  const meta = versionMeta(ev, v.pageId);
+  const ads = variantAds(ev, v.pageId);
+  const tag = a.status === "winner" ? (a.leader === v ? chip("good", "Gana") : chip("mute", "Pierde"))
+    : lead === v ? chip("info", "Va adelante") : "";
+  return `<div class="rv ${a.status === "winner" && a.leader === v ? "win" : ""}" style="--c:${pageColor(ev, v.pageId)}">
+    <a class="rv-shot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener" title="Ver captura completa"><img src="${shotUrl(v.pageId)}" alt="${esc(v.label)} en celular" loading="lazy" onerror="this.parentNode.style.display='none'"></a>
+    <div class="rv-body">
+      <div class="rv-name"><i class="dot"></i>${esc(v.label)}${v.isControl ? ` <span class="muted small">(original)</span>` : ""}${tag}</div>
+      ${meta.desc ? `<p class="rv-desc">${esc(meta.desc)}</p>` : ""}
+      <div class="rv-big num">${pct(rate(s.submitters, s.visitors))}</div>
+      <div class="rv-sub">${esc(goalText(ev))} · <b class="num">${fmt(s.submitters)}</b> de <b class="num">${fmt(s.visitors)}</b> visitantes · <b class="num">${fmt(s.confirmed)}</b> ${esc(stepName(ev, 3, "confirmaciones").toLowerCase())}</div>
+      ${bestAdLine(ev, bestOf(ads), ads.length)}
+      <span class="k">De qué anuncios vienen</span>
+      ${srcList(ev, ads)}
+    </div>
+  </div>`;
+}
+
+function abVerdict(t, a, lead, seg) {
+  const r = (v) => rate(v[seg].submitters, v[seg].visitors);
+  const ctrl = t.variants.find((v) => v.isControl) || t.variants[0];
+  const alt = t.variants.find((v) => v !== ctrl);
+  const conf = alt?.vsControl?.[seg]?.confidence;
+  const eta = !a.eta ? "" : a.eta > 60 ? " (al ritmo actual tardaría más de dos meses: hace falta más tráfico)" : ` (unos ${a.eta} día${a.eta > 1 ? "s" : ""})`;
+  const wait = a.status === "collecting" ? ` Faltan <b>${fmt(a.left)}</b> visitantes para leer resultados${eta}.` : "";
+  if (a.status === "winner") return `<b>Gana ${esc(a.leader.label)}</b>: ${pct(r(a.leader))} contra ${pct(r(a.trailer))}, con ${pct(a.conf, 0)} de confianza.`;
+  if (a.status === "broken") return `<b>El tráfico no está parejo entre las versiones</b>: el resultado todavía no es confiable.`;
+  if (!lead) return `Todavía no hay diferencia entre las versiones.${wait}`;
+  const other = t.variants.find((v) => v !== lead);
+  return `<b>${esc(lead.label)} va adelante</b>: ${pct(r(lead))} contra ${pct(r(other))}${conf != null ? `, con ${pct(conf, 0)} de confianza (se necesita 95% para declarar ganadora)` : ""}.${wait}`;
+}
+
+function repForced(ev) {
+  const av = ev.adVariants;
+  if (!av || av.forcedShare < 0.05) return "";
+  const page = av.pages.slice().sort((x, y) => y.forced - x.forced)[0];
+  const ads = av.ads.filter(isForcedAd).sort((x, y) => y.forcedVisitors - x.forcedVisitors);
+  const names = ads.slice(0, 4).map((x) => esc(adLabel(x.ad).name)).join(", ");
+  const fix = names ? ` (${names}${ads.length > 4 ? "…" : ""}). Hay que pasarlos al link general.` : ". No viene de anuncios: probablemente son visitas de prueba con el link de una versión.";
+  return `<p class="rep-warn"><b>${pct(av.forcedShare, 0)} del tráfico del test no cuenta:</b> llega con un link que fuerza la versión ${esc(page.label)}${fix}</p>`;
+}
+
+function reportCard(ev) {
+  const seg = segOf();
+  const f = ev.funnel[seg];
+  const t = ev.tests[0];
+  const hasAB = Boolean(t && t.variants.length > 1);
+  const a = hasAB ? analyzeTest(t, seg) : null;
+  const lead = hasAB ? (a.status === "winner" ? a.leader : leaderOf(t, seg)) : null;
+  const status = !hasAB ? chip("mute", "Sin test A/B")
+    : a.status === "winner" ? chip("good", `Test A/B · gana ${esc(a.leader.label)}`)
+    : a.status === "broken" ? chip("bad", "Test A/B · tráfico desparejo")
+    : lead ? chip("info", `Test A/B · ${esc(lead.label)} va adelante`)
+    : chip("info", "Test A/B · juntando datos");
+  const kpi = (label, value, sub) => `<div class="rk"><span>${label}</span><b class="num">${value}</b>${sub ? `<small>${sub}</small>` : ""}</div>`;
+  const kpis = `<div class="rep-kpis">
+    ${kpi("Visitantes", fmt(f.visitors), `últimos ${data.range.days} días`)}
+    ${kpi(esc(stepName(ev, 1, "Formularios")), fmt(f.submitters), `${pct(rate(f.submitters, f.visitors))} de los visitantes`)}
+    ${kpi(esc(stepName(ev, 2, "Página de gracias")), fmt(f.typ), "")}
+    ${kpi(esc(stepName(ev, 3, "Confirmaciones")), fmt(f.confirmed), `${pct(rate(f.confirmed, f.visitors), 2)} de los visitantes`)}
+  </div>`;
+  let body;
+  if (hasAB) {
+    const since = dateFmt(t.firstTs, { day: "numeric", month: "short" });
+    body = `<div class="rep-ab">
+      <div class="rep-ab-head"><h4>Test A/B · desde el ${since}</h4><span class="small muted">${fmt(t.variants.reduce((x, v) => x + v[seg].visitors, 0))} visitantes en el test${ev.abFrom ? " · lo anterior queda en el historial" : ""}</span></div>
+      <p class="rep-verdict">${abVerdict(t, a, lead, seg)}</p>
+      <div class="rep-vars">${t.variants.map((v) => repVariant(ev, t, v, a, lead, seg)).join("")}</div>
+      ${repForced(ev)}
+    </div>`;
+  } else {
+    const ads = landingAds(ev);
+    const v = (ev.versions || [])[0];
+    body = `<div class="rep-noab">
+      <div>${bestAdLine(ev, bestOf(ads, 30), ads.length)}
+        <span class="k">De qué anuncios vienen</span>${srcList(ev, ads, 5)}</div>
+      ${v ? `<div class="rep-one" style="--c:${pageColor(ev, v.pageId)}"><a class="rv-shot" href="${shotUrl(v.pageId)}" target="_blank" rel="noopener"><img src="${shotUrl(v.pageId)}" alt="La landing en celular" loading="lazy" onerror="this.parentNode.style.display='none'"></a>
+        <p class="small ink-2">Todo el tráfico ve esta versión. Para saber qué diseño funciona mejor, conviene armarle un test A/B.</p></div>` : ""}
+    </div>`;
+  }
+  return `<article class="rep" id="rep-${ev.key}">
+    <header class="rep-head">
+      <div><span class="rep-kicker">${esc(eventWhen(ev))}</span><h3>${esc(ev.name)}</h3>
+        <a class="rep-path" href="${ev.publicUrl}" target="_blank" rel="noopener">${esc(ev.paths.landing)} ↗</a></div>
+      <div class="rep-status">${status}</div>
+    </header>
+    ${kpis}
+    ${body}
+    <footer class="rep-foot"><button type="button" class="btn" data-ev="${ev.key}" data-go="detalle">Ver el detalle de ${esc(ev.name)} ↓</button></footer>
+  </article>`;
+}
+
+function reportSection() {
+  return `<section class="sec" id="s-landings">
+    <header class="sec-head"><div><h2>Landings: resultados y tests A/B</h2>
+      <p>Cada landing con sus números, qué versión funciona mejor y de qué anuncios viene la gente. En los tests A/B solo cuentan las visitas que pasaron por el reparto 50/50.</p></div></header>
+    <div class="reports">${landingOrder(data.events).map(reportCard).join("")}</div>
+  </section>`;
+}
+
 function eventView(ev) {
   const seg = segOf();
   const f = ev.funnel[seg];
   const pathsInfo = `Landing ${esc(ev.paths.landing)}`;
-  const nav = [["s-resumen", "Resumen"], ["s-1", "Embudo"], ["s-2", "Anuncios"], ["s-3", "Test A/B"], ["s-4", "Emails"], ["s-5", "Diagnóstico"], ["s-3b", "A/B propio"], ["s-6", "Por día"], ["s-7", "Fuentes"]]
-    .filter(([id]) => id !== "s-3b" || ev.experiment);
   return `
-    <nav class="secnav" aria-label="Ir a una sección">${nav.map(([id, l]) => `<a href="#${id}">${l}</a>`).join("")}</nav>
     ${plainSummary(ev)}
     ${kpis(ev)}
     ${section(1, "Embudo", `De visitante a confirmado. Cada columna es un paso; el color muestra qué tan bien pasa la gente al siguiente (verde bien, rojo mal). ${pathsInfo}.`,
@@ -1675,9 +1912,13 @@ function bindTips(root) {
   });
 }
 
+const navItems = (ev) => [["s-landings", "Landings"], ["detalle", `Detalle: ${ev.name}`], ["s-resumen", "Resumen"], ["s-1", "Embudo"], ["s-2", "Anuncios"], ["s-3", "Test A/B"],
+  ["s-4", "Emails"], ["s-5", "Diagnóstico"], ["s-3b", "A/B propio"], ["s-6", "Por día"], ["s-7", "Fuentes"]].filter(([id]) => id !== "s-3b" || ev.experiment);
+
 function render() {
   if (!store.get(TOKEN_STORE)) return renderGate();
   const ev = data && (data.events.find((e) => e.key === prefs.event) || data.events[0]);
+  useSteps(ev);
   const daysBtns = [7, 14, 30, 90].map((d) => `<button type="button" data-days="${d}" aria-pressed="${prefs.days === d}">${d} días</button>`).join("");
   app.innerHTML = `
     <header class="top">
@@ -1689,8 +1930,12 @@ function render() {
         <button class="btn" id="refresh" ${loading ? "disabled" : ""}>${loading ? "Actualizando…" : "Actualizar"}</button>
       </div>
     </header>
-    ${data ? eventCards() : ""}
+    ${ev ? `<nav class="secnav" aria-label="Ir a una sección">${navItems(ev).map(([id, l]) => `<a href="#${id}">${l}</a>`).join("")}</nav>` : ""}
     ${lastError ? `<div class="card" style="margin-bottom:16px"><p class="err">No se pudieron cargar los datos: ${esc(lastError)}</p></div>` : ""}
+    ${data ? reportSection() : ""}
+    ${ev ? `<section class="detail-head" id="detalle"><h2>Detalle de ${esc(ev.name)}</h2>
+      <p>Todo lo de una landing: embudo, anuncios, test A/B, emails y diagnóstico. Elegí cuál ver:</p>
+      <div class="detail-pick" role="group" aria-label="Landing">${landingOrder(data.events).map((e) => `<button type="button" data-ev="${e.key}" data-go="detalle" aria-pressed="${e.key === ev.key}">${esc(e.name)}</button>`).join("")}</div></section>` : ""}
     ${ev ? eventView(ev) : loading ? `<div class="loading">Consultando la analítica de Framer… (puede tardar unos segundos)</div>` : ""}
     ${data ? `<div class="notes">
       <p>Fuente: analítica de Framer del proyecto Eventos. Cada paso cuenta a quienes vieron la landing y después avanzaron ese mismo día.</p>
@@ -1700,7 +1945,10 @@ function render() {
     </div>` : ""}`;
 
   app.querySelectorAll("[data-days]").forEach((b) => b.addEventListener("click", () => { prefs.days = +b.dataset.days; savePrefs(); load(); }));
-  app.querySelectorAll("[data-ev]").forEach((b) => b.addEventListener("click", () => { prefs.event = b.dataset.ev; savePrefs(); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+  app.querySelectorAll("[data-ev]").forEach((b) => b.addEventListener("click", () => {
+    prefs.event = b.dataset.ev; savePrefs(); render();
+    document.getElementById(b.dataset.go || "detalle")?.scrollIntoView({ behavior: "smooth" });
+  }));
   const paid = document.getElementById("paid");
   if (paid) paid.addEventListener("change", () => { prefs.paid = paid.checked; savePrefs(); render(); });
   const refresh = document.getElementById("refresh");

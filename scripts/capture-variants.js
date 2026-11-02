@@ -20,7 +20,17 @@ await withConnection(PROJECT, async (framer) => {
         breakpoints.sort((a, b) => parseFloat(a.width) - parseFloat(b.width))[0];
       if (!phone) { console.warn(`Sin breakpoint en ${page.id}`); continue; }
       // Primer pantallazo en celular: lo que la persona ve antes de scrollear.
-      const shot = await framer.screenshot(phone.id, { format: "jpeg", quality: 80, scale: 2, clip: { x: 0, y: 0, width: 390, height: 844 } });
+      const opts = (scale) => ({ format: "jpeg", quality: 80, scale, clip: { x: 0, y: 0, width: 390, height: 844 } });
+      // Las páginas muy largas superan el límite de Framer a escala 2: ahí se captura a escala 1.
+      const shot = await framer.screenshot(phone.id, opts(2)).catch((err) => {
+        if (err?.code !== "SCREENSHOT_TOO_LARGE") throw err;
+        return framer.screenshot(phone.id, opts(1));
+      }).catch((err) => {
+        // Si ni así entra, queda la captura anterior (o se saca del sitio publicado con scripts/capture-live.js).
+        console.warn(`✗ ${ev.name} ${page.id}: ${err.message}`);
+        return null;
+      });
+      if (!shot) continue;
       writeFileSync(new URL(`${page.id}.jpg`, OUT), shot.data);
       index.pages[page.id] = { event: ev.key, path: page.path, breakpoint: phone.name };
       console.log(`✓ ${ev.name} ${page.id} (${phone.name})`);
