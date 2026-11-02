@@ -24,6 +24,7 @@ Funnels y tests A/B de las landings de eventos (Hollywood, Houston, Orlando), co
 | `FRAMER_PROJECT_ID` | `0wBFGvK3jgiViVD7lN3n` |
 | `BREVO_API_KEY` | (opcional) API key de Brevo con permiso de lectura de campañas. Sin esta variable, la sección de secuencias de email muestra cómo conectarla. |
 | `META_ACCESS_TOKEN` | (opcional) Token de solo lectura de Meta (permiso `ads_read`, idealmente de un usuario del sistema que no vence). Suma nombre, miniatura, link, gasto y costo por formulario de cada anuncio. |
+| `META_AD_ACCOUNT_ID` | (opcional) Número de la cuenta publicitaria (el `act=…` de la URL del Administrador de anuncios). Hace que "Ver anuncio" abra directo esa cuenta. |
 | `META_API_VERSION` | (opcional) Versión de la Graph API. Por defecto `v23.0`. |
 | `DASHBOARD_USERS` | Usuarios habilitados, en JSON: `{"mail@dominio.com": "salt:hash"}` |
 | `DASHBOARD_SECRET` | Clave para firmar las sesiones. Cambiarla cierra la sesión de todos |
